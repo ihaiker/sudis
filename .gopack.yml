@@ -1,0 +1,8 @@
+author: codeskyblue
+description: Port of python supervisor
+os: darwin linux
+includes: []
+excludes:
+  - \.git
+script:
+  - go build -tags bindata -ldflags "-X main.Version=$(git describe --tags --dirty --always)"
