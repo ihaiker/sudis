@@ -99,7 +99,15 @@ var vm = new Vue({
             $.ajax({
                 url: "/api/programs",
                 success: function (data) {
+
+
+
+
+
+
+
                     vm.programs = data;
+                    console.log( vm.programs)
                     Vue.nextTick(function () {
                         $('[data-toggle="tooltip"]').tooltip()
                     })
@@ -109,7 +117,28 @@ var vm = new Vue({
             $.ajax({
                 url: "/distributed/api/programs",
                 success: function (data) {
-                    vm.slaves = data;
+
+                    // console.log(data)
+                    function objKeySort(obj) {//排序的函数
+                        console.log(obj)
+                        var newkey = Object.keys(obj).sort();
+                        // console.log(newkey)
+                        //先用Object内置类的keys方法获取要排序对象的属性名，再利用Array原型上的sort方法对获取的属性名进行排序，newkey是一个数组
+                        var newObj = {};//创建一个新的对象，用于存放排好序的键值对
+                        for (var i = 0; i < newkey.length; i++) {//遍历newkey数组
+                            newObj[newkey[i]] = obj[newkey[i]];//向新创建的对象中按照排好的顺序依次增加键值对
+                        }
+                        // console.log(newObj)
+                        return newObj;//返回排好序的新对象
+                    }
+
+                    objKeySort(data) ;  //函数执行
+                    // console.log(objKeySort(data))
+
+
+                    vm.slaves = objKeySort(data);
+                    // console.log( vm.slaves)
+
                     Vue.nextTick(function () {
                         $('[data-toggle="tooltip"]').tooltip()
                     })
@@ -133,7 +162,8 @@ var vm = new Vue({
             console.log("test");
         },*/
         cmdStart: function (name, slave) {
-            console.log(name, slave);
+            console.log(name,slave);
+            // console.log(slave);
             requestUrl = "/api/programs/" + name + "/start";
             if (slave !== undefined && "" !== slave) {
                 requestUrl = "/distributed/" + slave + requestUrl;
@@ -260,7 +290,7 @@ $(function () {
                 vm.isConnectionAlive = true;
             },
             onmessage: function (evt) {
-                console.log("response:" + evt.data);
+                // console.log("response:" + evt.data);
                 vm.refresh();
             },
             onclose: function (evt) {
