@@ -15,7 +15,7 @@ type Configuration struct {
 			User     string `yaml:"username"`
 			Password string `yaml:"password"`
 		} `yaml:"httpauth"`
-		Addr string `yaml:"addr"`
+		Addr   string `yaml:"addr"`
 		Master string `yaml:"master"`
 	} `yaml:"server"`
 

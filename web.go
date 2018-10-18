@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -24,6 +25,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/qiniu/log"
+	"github.com/satori/uuid"
 	_ "github.com/shurcooL/vfsgen"
 )
 
@@ -268,13 +270,20 @@ func (s *Supervisor) renderJSON(w http.ResponseWriter, data JSONResponse) {
 }
 
 func (s *Supervisor) hIndex(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie(COOKIE_NAME)
+	if err != nil || cookie.Value == "" {
+		expiration := time.Now().Add(USER_EXPIRE)
+		uid := uuid.Must(uuid.NewV4())
+		setCookie := http.Cookie{Name: COOKIE_NAME, Value: uid.String(), Expires: expiration}
+		http.SetCookie(w, &setCookie)
+	}
 	s.renderHTML(w, "index", nil)
 }
 
 func (s *Supervisor) hSetting(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	s.renderHTML(w, "setting", map[string]string{
-		"Name": name,
+		"Name":  name,
 		"Slave": "",
 	})
 }
@@ -316,8 +325,35 @@ func (s *Supervisor) hReload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Supervisor) hGetProgramNameList(w http.ResponseWriter, r *http.Request) {
+	data, err := json.Marshal(s.names)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
 func (s *Supervisor) hGetProgramList(w http.ResponseWriter, r *http.Request) {
-	data, err := json.Marshal(s.procs())
+	tags := r.FormValue("tags")
+
+	var ps []*Process
+	if tags == "" {
+		for _, name := range s.names {
+			ps = append(ps, s.procMap[name])
+		}
+	} else {
+		tagList := strings.Split(tags, ",")
+		for _, name := range tagList {
+			p, ok := s.procMap[name]
+			if ok {
+				ps = append(ps, p)
+			}
+		}
+	}
+
+	data, err := json.Marshal(ps)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -667,10 +703,11 @@ func newSupervisorHandler() (suv *Supervisor, hdlr http.Handler, err error) {
 	r.HandleFunc("/api/reload", suv.hReload).Methods("POST")
 
 	r.HandleFunc("/api/programs", suv.hGetProgramList).Methods("GET")
+	r.HandleFunc("/api/programs", suv.hAddProgram).Methods("POST")
+	r.HandleFunc("/api/programs/names", suv.hGetProgramNameList).Methods("GET")
 	r.HandleFunc("/api/programs/{name}", suv.hGetProgram).Methods("GET")
 	r.HandleFunc("/api/programs/{name}", suv.hDelProgram).Methods("DELETE")
 	r.HandleFunc("/api/programs/{name}", suv.hUpdateProgram).Methods("PUT")
-	r.HandleFunc("/api/programs", suv.hAddProgram).Methods("POST")
 	r.HandleFunc("/api/programs/{name}/start", suv.hStartProgram).Methods("POST")
 	r.HandleFunc("/api/programs/{name}/stop", suv.hStopProgram).Methods("POST")
 
