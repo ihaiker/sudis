@@ -18,7 +18,6 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mitchellh/go-ps v0.0.0-20170309133038-4fdf99ab2936
 	github.com/onsi/gomega v1.5.0 // indirect
-	github.com/qiniu/log v0.0.0-20140728010919-a304a74568d6
 	github.com/shurcooL/httpfs v0.0.0-20170514040059-bc35257962c2 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20170728162603-385e5833a54a
 	github.com/smartystreets/goconvey v0.0.0-20190710185942-9d28bd7c0945

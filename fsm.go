@@ -30,8 +30,8 @@ import (
 
 	"github.com/codeskyblue/gosuv/pushover"
 	"github.com/codeskyblue/kexec"
+	"github.com/ihaiker/distributed-gosuv/log"
 	"github.com/kennygrant/sanitize"
-	"github.com/qiniu/log"
 )
 
 type FSMState string

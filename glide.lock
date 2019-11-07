@@ -29,7 +29,7 @@ imports:
   version: 6a0bfdde8629a3a3a7418a7eae45c54154692514
 - name: github.com/mitchellh/go-ps
   version: 4fdf99ab29366514c69ccccddab5dc58b8d84062
-- name: github.com/qiniu/log
+- name: github.com/ihaiker/distributed-gosuv/log
   version: a304a74568d6982c5b89de1c68ac8fca3add196a
 - name: github.com/shurcooL/httpfs
   version: bc35257962c2dea93e81c976b72c7c6eac45fd8a

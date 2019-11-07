@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/franela/goreq"
-	"github.com/qiniu/log"
+	"github.com/ihaiker/distributed-gosuv/log"
 	"github.com/urfave/cli"
 )
 

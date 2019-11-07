@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/glycerine/rbuf"
-	"github.com/qiniu/log"
+	"github.com/ihaiker/distributed-gosuv/log"
 )
 
 // The new broadcast

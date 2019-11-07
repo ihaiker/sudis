@@ -10,7 +10,7 @@ import:
 - package: github.com/gorilla/websocket
 - package: github.com/kennygrant/sanitize
 - package: github.com/mitchellh/go-ps
-- package: github.com/qiniu/log
+- package: github.com/ihaiker/distributed-gosuv/log
 - package: github.com/shurcooL/vfsgen
 - package: github.com/urfave/cli
 testImport:

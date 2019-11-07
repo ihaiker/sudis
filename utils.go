@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qiniu/log"
+	"github.com/ihaiker/distributed-gosuv/log"
 )
 
 var ErrGoTimeout = errors.New("GoTimeoutFunc")
