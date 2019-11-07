@@ -102,18 +102,14 @@ func (cluster *Cluster) cmdJoinCluster(w http.ResponseWriter, r *http.Request) {
 //获取分布式系统下所有的内容
 func (cluster *Cluster) cmdQueryDistributedPrograms(w http.ResponseWriter, r *http.Request) {
 	jsonOut := "{"
-	idx := 0
 	for _, v := range cluster.slaves.GetALL(true) {
 		slave := v.(string)
 		reqUrl := fmt.Sprintf("http://%s/api/programs", slave)
 		if body, err := cluster.requestSlave(reqUrl, http.MethodGet, nil); err == nil {
-			jsonOut += fmt.Sprintf("\"%s\":%s", slave, body)
+			jsonOut += fmt.Sprintf("\"%s\":%s,", slave, body)
 		}
-		if idx < cluster.slaves.Len(true)-1 {
-			jsonOut += ","
-		}
-		idx += 1
 	}
+	jsonOut += "\"haiker\":[]"
 	jsonOut += "}"
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(jsonOut))

@@ -29,11 +29,11 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
                 <ul class="nav navbar-nav">
-                    <!-- <li class="hidden-xs">
-                      <a>
-                        <span class="glyphicon glyphicon-qrcode"></span>
-                      </a>
-                    </li> -->
+                    <li class="hidden-xs">
+                        <a>
+                            <span class="glyphicon glyphicon-qrcode"></span>
+                        </a>
+                    </li>
                 </ul>
                 <ul id="nav-right-bar" class="nav navbar-nav navbar-right">
                 </ul>
@@ -59,7 +59,7 @@
             <div class="panel-heading">
                 Master
                 <span class="panel-icon pull-right">
-                    <button class="btn btn-success btn-sm" rel="tooltip"  v-on:click="addNewProgram()" data-original-title="Click to add programs"><i class="fa fa-plus"></i>New Program</button>
+                    <button class="btn btn-success btn-sm" rel="tooltip" v-on:click="addNewProgram()" data-original-title="Click to add programs"><i class="fa fa-plus"></i>New Program</button>
                 </span>
             </div>
             <div class="panel-body">
@@ -108,11 +108,11 @@
                 </table>
             </div>
         </div>
-        <div v-for="(slave,items) in slaves" class="panel panel-default">
+        <div v-for="(slave,items) in slaves" class="panel panel-default" v-if="slave!= 'haiker'">
             <div class="panel-heading">
                 {{slave}}
                 <span class="panel-icon pull-right">
-                    <button class="btn btn-success btn-sm" rel="tooltip"  v-on:click="addNewProgram(slave)"
+                    <button class="btn btn-success btn-sm" rel="tooltip" v-on:click="addNewProgram(slave)"
                             data-original-title="Click to add programs">
                         <i class="fa fa-plus"></i>New Program
                     </button>
@@ -169,7 +169,7 @@
         <div id="footer" class="pull-right" style="margin: 2em 1em">
             <div>
                 <a href="https://github.com/codeskyblue/gosuv">gosuv ([[.Version]])</a>, written by <a
-                    href="https://github.com/codeskyblue">codeskyblue</a>. 2017. go1.7
+                        href="https://github.com/codeskyblue">codeskyblue</a>. 2017. go1.7
             </div>
             <div>
                 <a href="https://github.com/ihaiker/distributed-gosuv">distributed-gosuv ([[.Version]])</a>, written by
@@ -238,7 +238,7 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <h4 class="modal-title"><span class="glyphicon glyphicon-edit"></span> <span
-                                v-text="edit.program.name"></span></h4>
+                                    v-text="edit.program.name"></span></h4>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
