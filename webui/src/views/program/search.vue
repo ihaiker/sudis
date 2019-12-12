@@ -53,10 +53,10 @@
             </div>
         </div>
         <div class="col-auto pl-0">
-            <button class="btn btn-sm btn-primary" @click="onSearch">
+            <button class="btn btn-sm btn-default" @click="onSearch">
                 <i class="fa fa-search"/> 搜索
             </button>
-            <button class="btn btn-sm btn-tumblr ml-2" @click="onReset">
+            <button class="btn btn-sm btn-default ml-2" @click="onReset">
                 <i class="fa fa-close"/> 重置搜索
             </button>
             <slot/>

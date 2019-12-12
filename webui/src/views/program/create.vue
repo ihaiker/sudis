@@ -58,10 +58,10 @@
                 <cSwitch class="switch-sm" color="primary" v-model="form.autoStart"/>
             </div>
 
-            <div class="col-auto col-form-label">
+            <div class="col-auto col-form-label" v-if="form.daemon==='1'">
                 忽略已启动
             </div>
-            <div class="col-auto col-form-label ml-0 pl-0">
+            <div class="col-auto col-form-label ml-0 pl-0" v-if="form.daemon==='1'">
                 <cSwitch class="switch-sm" color="primary" v-model="form.ignoreStarted"/>
             </div>
         </div>
@@ -114,6 +114,8 @@
             },
             ok() {
                 let self = this;
+                self.form.startDuration = parseInt(self.form.startDuration);
+                self.form.startRetries = parseInt(self.form.startRetries);
                 self.$axios.post("/admin/program/addOrModify", self.form).then(res => {
                     self.$toast.success("添加成功！");
                     self.form = null;
@@ -128,7 +130,7 @@
             reset() {
                 this.form = {
                     name: "", node: "", daemon: "0",
-                    autoStart: false, ignoreStarted: true,
+                    autoStart: false, ignoreStarted: false,
                     startDuration: 7, startRetries: 3,
                     envs: [],
                     start: {

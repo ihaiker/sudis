@@ -52,6 +52,12 @@
             if (this.command.args) {
                 this.commandArgs.push(...this.command.args);
             }
+            if (this.command.health) {
+                this.healthType = this.command.health.type;
+                this.healthUrl = this.command.health.url;
+                this.healthTTL = this.command.health.ttl;
+                this.healthSecurityKey = this.command.health.securityKey;
+            }
         },
         data: () => ({
             commandName: "",
@@ -77,8 +83,19 @@
         },
         watch: {
             //@formatter:off
-            commandName() {this.notify(); },
-            commandArgs() {this.notify(); },
+            commandName(value) {
+                let args = value.split(" ");
+                if(args.length > 1){
+                    for(let i = 1; i < args.length; i++) {
+                        if(args[i] !== ""){
+                            this.commandArgs.push(args[i]);
+                        }
+                    }
+                    this.commandName = args[0];
+                }
+                this.notify();
+            },
+            commandArgs(args) {this.notify();},
             healthType() { this.notify(); },
             healthUrl(){ this.notify(); },
             healthTTL(){ this.notify(); },

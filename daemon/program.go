@@ -64,7 +64,7 @@ type Program struct {
 	IgnoreAlreadyStarted bool `json:"ignoreStarted" yaml:"ignoreStarted" yaml:"ignoreStarted"`
 
 	//是否自动启动
-	StartAuto bool `json:"startAuto" yaml:"startAuto" yaml:"startAuto"`
+	AutoStart bool `json:"autoStart" yaml:"autoStart" toml:"autoStart"`
 
 	//启动周期
 	StartDuration int `json:"startDuration" yaml:"startDuration" yaml:"startDuration"`
@@ -96,7 +96,7 @@ func NewProgram() *Program {
 		Daemon:        "0",
 		WorkDir:       currentUser.HomeDir,
 		User:          currentUser.Username,
-		StartAuto:     false,
+		AutoStart:     false,
 		StartDuration: 7,
 		StartRetries:  3,
 		Envs:          []string{},

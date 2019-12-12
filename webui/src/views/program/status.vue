@@ -1,37 +1,37 @@
 <template>
     <div>
-        <button class="btn btn-sm btn-twitter ml-1" style="width: 60px;">
+        <button class="btn btn-sm ml-1" :class="statusColor(wProgram.status)" style="width: 60px;">
             {{wProgram.status}}
         </button>
 
         <template v-if="isRunning">
-            <button v-if="isStopting" class="btn btn-sm btn-danger ml-1" type="button" disabled>
+            <button v-if="isStopting" class="btn btn-sm btn-default ml-1" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"/>&nbsp;停止
             </button>
-            <button v-else @click="stopCommand" class="btn btn-sm btn-danger ml-1" :disabled="disable">
+            <button v-else @click="stopCommand" class="btn btn-sm btn-default ml-1" :disabled="disable">
                 <i class="fa fa-stop">&nbsp;停止</i>
             </button>
 
-            <button class="btn btn-sm btn-dark ml-1" @click="restartCommand" :disabled="disable">
+            <button class="btn btn-sm btn-default ml-1" @click="restartCommand" :disabled="disable">
                 <i class="fa fa-refresh">&nbsp;重启</i>
             </button>
-            <button class="btn btn-sm btn-outline-primary ml-1" :disabled="disable">
+            <button class="btn btn-sm btn-default ml-1" :disabled="disable">
                 <i class="fa fa-info-circle">&nbsp;详情</i>
             </button>
         </template>
         <template v-else>
-            <button v-if="isStarting" class="btn btn-sm btn-success ml-1" type="button" disabled>
+            <button v-if="isStarting" class="btn btn-sm btn-default ml-1" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"/>&nbsp; 启动
             </button>
-            <button v-else @click="startCommand" class="btn btn-sm btn-success ml-1" :disabled="disable">
+            <button v-else @click="startCommand" class="btn btn-sm btn-default ml-1" :disabled="disable">
                 <i class="fa fa-play">&nbsp;启动</i>
             </button>
 
-            <button class="btn btn-sm btn-linkedin ml-1" :disabled="disable" @click="onEditClick">
+            <button class="btn btn-sm btn-default ml-1" :disabled="disable" @click="onEditClick">
                 <i class="fa fa-edit">&nbsp;编辑</i>
             </button>
 
-            <button @click="deleteCommand" class="btn btn-sm btn-pinterest ml-1" :disabled="disable">
+            <button @click="deleteCommand" class="btn btn-sm btn-default ml-1" :disabled="disable">
                 <i class="fa fa-trash">&nbsp;删除</i>
             </button>
         </template>
@@ -57,8 +57,21 @@
         }),
         created() {
             this.wProgram = this.program;
+            this.disable = (this.program.status === Starting || this.program.status === Stoping);
         },
         methods: {
+            statusColor(status) {
+                if (status === Ready) {
+                    return "btn-outline-primary";
+                } else if (status === Running || status === Starting) {
+                    return "btn-success";
+                } else if (status === Stoping || status === Stoped) {
+                    return "btn-outline-dark"
+                } else if (status === Fail) {
+                    return "btn-pinterest"
+                }
+                return "btn-default";
+            },
             onChange() {
                 let self = this;
                 setTimeout(() => {

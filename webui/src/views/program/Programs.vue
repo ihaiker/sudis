@@ -4,7 +4,7 @@
 
         <div class="animated fadeIn p-3">
             <search :nodes="nodes" :tags="tags" @search="queryPrograms">
-                <button class="btn btn-sm btn-danger ml-2" @click="editProgram={}">
+                <button class="btn btn-sm btn-default ml-2" @click="editProgram={}">
                     <i class="fa fa-plus"/> 新建进程
                 </button>
             </search>

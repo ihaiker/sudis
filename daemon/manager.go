@@ -53,7 +53,7 @@ func (self *DaemonManager) Start() error {
 	sort.Sort(self.process)
 
 	for _, pro := range self.process {
-		if pro.Program.StartAuto {
+		if pro.Program.AutoStart {
 			logger.Debug("auto start program: ", pro.Program.Name)
 			if err := pro.startCommand(nil); err != nil {
 				logger.Warn("auto start program error:", err)

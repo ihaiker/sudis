@@ -235,8 +235,9 @@ func (p *Process) stopCommand() error {
 		case <-time.After(time.Duration(p.Program.StopTimeout) * time.Second):
 			_ = stopCmd.Terminate(syscall.SIGKILL)
 		}
-
 		_ = stopCmd.Wait()
+
+		p.setState(Stoped)
 	}
 	return nil
 }

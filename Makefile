@@ -14,7 +14,7 @@ endif
 gobinddata=$(shell command -v go-bindata)
 
 ifeq ($(gobinddata),'')
-	go get -u github.com/shuLhan/go-bindata/...
+	go get -u github.com/shuLhan/go-bindata/cmd/go-bindata
 endif
 
 build: bindata
