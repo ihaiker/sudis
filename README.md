@@ -4,7 +4,7 @@
 
 Sudis !! Distributed supervisor process control system.
 
-[中文说明](README_zh.md) | English
+[中文说明](README_ZH.md) | English
 
 Source code: [Github](https://github.com/ihaiker/sudis) | [Gitee](https://gitee.com/ihaiker/sudis)
 

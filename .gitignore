@@ -17,3 +17,5 @@
 /.env
 /conf/logs.yaml
 /conf/sudis.toml
+/vendor
+*.iml

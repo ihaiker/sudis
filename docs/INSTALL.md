@@ -13,13 +13,19 @@
 
 ## 安装
 
-### 下载源代码
+### 二进制安装
+
+[下载二进制包](https://github.com/ihaiker/sudis/releases)
+
+### 源码安装
+
+#### 下载源代码
 
 ```shell script
 git clone https://github.com/ihaiker/sudis.git
 ```
 
-### 编译程序（make方式）
+#### 编译程序（make方式）
 
 ```shell script
 cd sudis
@@ -27,7 +33,7 @@ make release
 ```
 编译完的程序在 当前文件夹bin目录下，编译完成。
 
-### 编译程序
+#### 编译程序
 第一步：编译生成前端页面
 ```shell script
 $ cd sudis/webui 
