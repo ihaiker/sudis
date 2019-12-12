@@ -1,48 +1,45 @@
-# 概述
-GoSuv是GO语言重写的类supervisor的一个进程管理程序，简单易用，界面美感十足且对用户友好 
+# Sudis
 
-## 使用
-* 启动服务
+![sudis logo](webui/public/logo.png)
 
-    ```
-    gosuv start-server
-    ```
+Sudis !! 分布式程序控制系统。
 
-查看服务状态
+Supervister程序使用Go语言实现分布式一站式管理。
 
-    ```
-    $ gosuv status
-    Server is running
-    ```
+中文说明 | [English](README.md)
 
-默认端口 11113  本机测试请使用[http://localhost:11313](http://localhost:11313)
+源代码: [Github](https://github.com/ihaiker/sudis) | [Gitee](https://gitee.com/ihaiker/sudis)
 
-![RunImage](docs/gosuv.gif)
+![dashboard.png](./docs/views/dashboard.png)
+![nodes.png](./docs/views/nodes.png)
+![programs.png](./docs/views/programs.png)
+![tags.png](./docs/views/tags.png)
 
-## 配置
-默认配置文件都放在 `$HOME/.gosuv/`
-    
-* 项目文件名 ：     programs.yml
-* 服务器配置文件名：    config.yml
+## 安装
 
-验证信息配置
+阅读[安装说明](docs/INSTALL.md)
 
-```yml
-server:
-    httpauth:
-    enabled: false
-    username: uu
-    password: pp
-  addr: :11313
-client:
-  server_url: http://localhost:11313
-```
+## 功能
 
-## 默认日志文件位置
-`$HOME/.gosuv/log/`
+- 提供分布式多机房一站式管理方式。
+- 程序状态变更发送通知。
 
-## 待续
-内容不是很多，还是推荐能看懂英语的去看[英文的README](README.md)
+## 如何贡献
 
-## 贡献人
-- [Docking](http://miaomia.com)
+热诚欢迎提交您的意见和建议！
+
+无论是简单的BUG修复、主要的新功能、还是其他建议。阅读[贡献指南](docs/CONTRIBUTING.md)以获取更多详细信息。
+
+查阅 [贡献指南](docs/CONTRIBUTING.md)
+
+## 变更记录
+
+[变更记录](docs/CHANGELOG.md)
+
+## 未实现功能
+
+- [ ] 发送程序状态变更通知. (webhook, 邮件, 短信, gNotify).  [gNotify](https://github.com/ihaiker/gNotify) 一个多渠道集成推送管理平台，处于设计和开发阶段。
+- [ ] 主控节点master支持server节点使用WebSocket连接。
+- [ ] 开放API
+
+

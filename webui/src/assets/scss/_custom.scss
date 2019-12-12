@@ -1,0 +1,23 @@
+// Here you can add other styles
+
+body {
+    background-color: white;
+}
+
+.breadcrumb {
+    margin-bottom: 0;
+}
+
+$btn-padding-x-xs: .20rem !default;
+$btn-padding-y-xs: .12rem !default;
+$input-btn-line-height-xs: 1.1 !default;
+
+.btn.btn-xs {
+    // line-height: ensure proper height of button next to small input
+    @include button-size($btn-padding-y-xs, $btn-padding-x-xs, $font-size-sm, $input-btn-line-height-xs, $btn-border-radius-sm);
+}
+
+.sidebar .nav-link.active {
+    color: #fff;
+    background: #226190;
+}
