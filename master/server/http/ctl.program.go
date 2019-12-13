@@ -11,7 +11,10 @@ import (
 )
 
 type ProgramForm struct {
-	Node string `json:"node"`
+	Node string  `json:"node"`
+	Pid  int     `json:"pid"`
+	Cpu  float64 `json:"cpu"`
+	Rss  int     `json:"rss"`
 	*daemon.Program
 }
 
@@ -124,13 +127,15 @@ func (self *ProgramController) commandProgram(ctx iris.Context) int {
 	return iris.StatusNoContent
 }
 
-func (self ProgramController) programDetail(ctx iris.Context) *ProgramForm {
+func (self *ProgramController) programDetail(ctx iris.Context) *ProgramForm {
 	name := ctx.URLParam("name")
 	node := ctx.URLParam("node")
 	process, err := self.api.Get(node, name)
 	AssertErr(err)
 
 	return &ProgramForm{
-		Node: node, Program: process.Program,
+		Node: node, Pid: process.Pid,
+		Cpu: process.Cpu, Rss: process.Rss,
+		Program: process.Program,
 	}
 }

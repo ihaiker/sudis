@@ -4,10 +4,12 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"github.com/ihaiker/sudis/daemon"
 	"github.com/ihaiker/sudis/master/dao"
 	"github.com/kataras/iris"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -17,8 +19,16 @@ type GithubRelease struct {
 	Name    string `json:"name"`
 }
 
+var release *GithubRelease
+var lastRefreshTime = time.Now()
+
 func getRelease() (*GithubRelease, error) {
-	reslease := &GithubRelease{HTMLURL: "", TagName: "", Name: ""}
+	if release != nil && time.Now().Before(lastRefreshTime.Add(time.Hour)) {
+		return release, nil
+	}
+	lastRefreshTime = time.Now()
+	release = &GithubRelease{HTMLURL: "", TagName: "", Name: ""}
+
 	if request, err := http.NewRequest("", "https://api.github.com/repos/ihaiker/sudis/releases/latest", nil); err != nil {
 		return nil, err
 	} else {
@@ -29,15 +39,15 @@ func getRelease() (*GithubRelease, error) {
 			Timeout: time.Second * 5,
 		}
 		if response, err := client.Do(request); err != nil {
-			return reslease, err
+			return release, err
 		} else if response.StatusCode != 200 {
-			return reslease, errors.New(response.Status)
+			return release, errors.New(response.Status)
 		} else {
 			defer response.Body.Close()
 			if bs, err := ioutil.ReadAll(response.Body); err != nil {
-				return reslease, err
+				return release, err
 			} else {
-				return reslease, json.Unmarshal(bs, reslease)
+				return release, json.Unmarshal(bs, release)
 			}
 		}
 	}
@@ -66,6 +76,15 @@ func dashboard(ctx iris.Context) *JSON {
 	}
 	release, _ := getRelease()
 
+	cpu := float64(0)
+	ram := 0
+	if self, err := daemon.NewProcessInfo(os.Getpid()); err == nil {
+		if pi, err := self.ProcInfo(); err == nil {
+			cpu = pi.PCpu
+			ram = pi.Rss
+		}
+	}
+
 	return &JSON{
 		"node": &JSON{
 			"all":    allNode,
@@ -75,7 +94,7 @@ func dashboard(ctx iris.Context) *JSON {
 			"all":     allProgram,
 			"started": startedProgram,
 		},
-		"info":    &JSON{"CPU": "Unrealized", "RAM": "Unrealized"},
+		"info":    &JSON{"CPU": cpu, "RAM": ram},
 		"version": release,
 	}
 }

@@ -1,4 +1,6 @@
-module.exports = {
+import utils from "./utils";
+
+let mixins = {
     data: () => ({
         gid: ('m' + Math.floor(Math.random() * 10000000000)),
         timers: {}
@@ -30,5 +32,12 @@ module.exports = {
             this.startLoading(title);
             request.finally(this.finishLoading)
         },
+        ramShow(limit) {
+            return utils.ram(limit)
+        },
+        now() {
+            return utils.now()
+        },
     }
 };
+export default  mixins;

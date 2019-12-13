@@ -26,14 +26,21 @@ func newTcpMasterClient(address, securityToken string, dm *daemon.DaemonManager)
 	}
 	client.client = rpc.NewClient(address, MakeServerCommand(dm), func(channel remoting.Channel) {
 		if client.started {
-			logger.Info("与主控节点断开，重新连接")
-			commons.SafeExec(client.Stop)
-			for {
-				if err := client.Start(); err == nil {
-					return
+			go func() {
+				logger.Info("与主控节点断开，重新连接")
+				commons.SafeExec(client.Stop)
+				client.started = true //上面执行了close，这里会被改写为false
+				for {
+					logger.Debug("尝试连接主控节点：", address)
+					if err := client.Start(); err == nil {
+						logger.Info("重连与TCP主控节点连接成功：", address)
+						return
+					} else {
+						logger.Debug("重连主控节点异常：", err)
+						time.Sleep(time.Second * 5)
+					}
 				}
-				time.Sleep(time.Second)
-			}
+			}()
 		}
 	})
 	return client
@@ -64,8 +71,8 @@ func (self *tcpMasterClient) Start() (err error) {
 }
 
 func (self *tcpMasterClient) Stop() {
-	logger.Info("server master client close")
+	logger.Info("开始断开TCP主控节点连接")
 	self.started = false
 	self.client.Shutdown()
-	logger.Info("server master client closed")
+	logger.Info("TCP主控节点连接关闭成功")
 }

@@ -15,20 +15,23 @@ import (
 )
 
 type Process struct {
+	Pid   int      `json:"pid"`
 	State FSMState `json:"state"`
 
 	Program *Program `json:"program"`
 
 	cmd *kexec.KCommand
 
-	stdout io.Writer
-	stderr io.Writer
+	log io.Writer
 
 	retryLeft int
 
 	statusListener FSMStatusListener
 
 	stopC chan syscall.Signal
+
+	Cpu float64 `json:"cpu"`
+	Rss int     `json:"rss"`
 }
 
 func NewProcess(program *Program) *Process {
@@ -47,6 +50,12 @@ func (f *Process) setState(newState FSMState) {
 	if f.State == newState {
 		return
 	}
+	if newState == Running {
+		f.Pid = f.cmd.Process.Pid
+	} else {
+		f.Pid = 0
+	}
+
 	if f.statusListener != nil {
 		f.statusListener(f, f.State, newState)
 	}
@@ -296,11 +305,35 @@ func (p *Process) buildCommand(command *Command) (cmd *kexec.KCommand, err error
 
 	cmd.Env = append(cmd.Env, "HOME="+currentUser.HomeDir, "USER="+currentUser.Username)
 
-	//FIXME 翻入输出缓存
-	//cmd.Stdout = os.Stdout
-	//cmd.Stderr = os.Stderr
+	cmd.Stdout = p.log
+	cmd.Stderr = p.log
 
 	return
+}
+
+func (p *Process) Refresh() {
+	p.Cpu = 0
+	p.Rss = 0
+
+	if p.Pid == 0 {
+		return
+	} else if process, err := NewProcessInfo(p.Pid); err != nil {
+		logger.Debug("get process info error: ", err)
+	} else if pi, err := process.ProcInfo(); err != nil {
+		logger.Debug("get process info error: ", err)
+	} else {
+		p.Cpu = pi.PCpu
+		p.Rss = pi.Rss
+	}
+}
+
+//释放所有资源
+func (p *Process) Freed() {
+	if p.log != nil {
+		if cl, match := p.log.(io.WriteCloser); match {
+			_ = cl.Close()
+		}
+	}
 }
 
 func safeCloseSig(c chan syscall.Signal) {

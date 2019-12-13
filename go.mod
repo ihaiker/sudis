@@ -16,7 +16,7 @@ require (
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/schema v1.1.0 // indirect
-	github.com/ihaiker/gokit v1.4.15
+	github.com/ihaiker/gokit v1.5.16
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/blackfriday v2.0.0+incompatible // indirect
 	github.com/iris-contrib/formBinder v5.0.0+incompatible // indirect
@@ -32,6 +32,7 @@ require (
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.2 // indirect
+	github.com/mitchellh/go-ps v0.0.0-20190716172923-621e5597135b
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.10.3 // indirect
 	github.com/onsi/gomega v1.7.1 // indirect

@@ -6,7 +6,8 @@ const Login = () => import('@/views/Login');
 
 const Dashboard = () => import('@/views/dashboard/Dashboard');
 const Nodes = () => import('@/views/nodes/Nodes');
-const Programs = () => import('@/views/program/Programs');
+const Programs = () => import('@/views/program/ProgramList');
+const ProgramInfo = () => import('@/views/program/ProgramInfo');
 const Tags = () => import('@/views/tags/Tags');
 const Users = () => import('@/views/users/Users');
 const Systems = () => import('@/views/system/Systems');
@@ -29,6 +30,7 @@ export default new Router({
                 {path: "nodes", component: Nodes},
                 {path: "programs", component: Programs},
                 {path: "programs/:tag", component: Programs},
+                {path: "program", component: ProgramInfo},
                 {path: "tags", component: Tags},
                 {path: "users", component: Users},
                 {path: "systems", component: Systems},

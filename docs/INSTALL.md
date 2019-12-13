@@ -37,6 +37,7 @@ make release
 第一步：编译生成前端页面
 ```shell script
 $ cd sudis/webui 
+webui$ npm i -g @vue/cli #安装vue cli
 webui$ npm i #安装依赖
 webui$ npm run build
 ```
@@ -141,12 +142,13 @@ $ sudis server
 
 ###  单节点启动
 
+> 上面的程序启动是分布式情况下的启动，如果您只是单机是使用可以使用独立模式运行
+
 ```shell
 $ sudis single
 或者
 $ sudis # single 是默认命令
 ```
-
 
 
 ### 登录中控台

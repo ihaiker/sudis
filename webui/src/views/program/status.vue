@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button class="btn btn-sm ml-1" :class="statusColor(wProgram.status)" style="width: 60px;">
+        <button class="btn btn-sm ml-1" :class="statusColor(wProgram.status)" style="width: 70px;">
             {{wProgram.status}}
         </button>
 
@@ -15,9 +15,10 @@
             <button class="btn btn-sm btn-default ml-1" @click="restartCommand" :disabled="disable">
                 <i class="fa fa-refresh">&nbsp;重启</i>
             </button>
-            <button class="btn btn-sm btn-default ml-1" :disabled="disable">
+            <router-link :to="{path:'/admin/program',query:{node:wProgram.node,name:wProgram.name}}"
+                         class="btn btn-sm btn-default ml-1" :disabled="disable">
                 <i class="fa fa-info-circle">&nbsp;详情</i>
-            </button>
+            </router-link>
         </template>
         <template v-else>
             <button v-if="isStarting" class="btn btn-sm btn-default ml-1" type="button" disabled>
@@ -35,6 +36,10 @@
                 <i class="fa fa-trash">&nbsp;删除</i>
             </button>
         </template>
+
+        <button class="btn btn-sm btn-default ml-1">
+            <i class="fa fa-file-text"/>日志
+        </button>
     </div>
 </template>
 
@@ -61,12 +66,8 @@
         },
         methods: {
             statusColor(status) {
-                if (status === Ready) {
-                    return "btn-outline-primary";
-                } else if (status === Running || status === Starting) {
+                if (status === Running || status === Starting) {
                     return "btn-success";
-                } else if (status === Stoping || status === Stoped) {
-                    return "btn-outline-dark"
                 } else if (status === Fail) {
                     return "btn-pinterest"
                 }

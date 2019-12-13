@@ -10,6 +10,11 @@ Supervister程序使用Go语言实现分布式一站式管理。
 
 源代码: [Github](https://github.com/ihaiker/sudis) | [Gitee](https://gitee.com/ihaiker/sudis)
 
+程序分布方式：
+
+![sudis.svg](./docs/views/sudis.svg)
+
+界面预览：
 ![dashboard.png](./docs/views/dashboard.png)
 ![nodes.png](./docs/views/nodes.png)
 ![programs.png](./docs/views/programs.png)

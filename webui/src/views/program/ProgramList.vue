@@ -15,18 +15,27 @@
                     <th>进程名</th>
                     <th>节点</th>
                     <th>标签</th>
-                    <th style="width: 280px;">状态 &amp; 操作</th>
+                    <th style="width: 340px;">状态 &amp; 操作</th>
                     <th style="width: 180px;">状态时间</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="(p) in programs">
-                    <td>{{p.name}}</td>
-                    <td>{{nodeShow(p.node)}}</td>
+                    <td>
+                        <router-link :to="{path:'/admin/program',query:{node:p.node,name:p.name}}">
+                            {{p.name}}
+                        </router-link>
+                    </td>
+                    <td>
+                        {{nodeShow(p.node)}}
+                        <span v-if="!nodeOnline(p.node)" class="text-danger">
+                             <span class="spinner-border spinner-border-xs" role="status" aria-hidden="true"/>
+                        </span>
+                    </td>
                     <td>
                         <Tags :tags="tags" :program="p" @change="queryPrograms"/>
                     </td>
-                    <td>
+                    <td class="overflow-hidden">
                         <status :program="p" @change="queryPrograms" @edit="editProgram = $event"/>
                     </td>
                     <td>{{p.time}}</td>
@@ -46,7 +55,7 @@
     import vTitle from "../../plugins/vTitle";
 
     export default {
-        name: "Programs",
+        name: "ProgramList",
         components: {vTitle, Tags, Create, Status, Search},
         data: () => ({
             programs: [],
@@ -90,7 +99,23 @@
                     }
                 }
                 return nodeKey;
+            },
+            nodeOnline(nodeKey) {
+                for (let idx in this.nodes) {
+                    let node = this.nodes[idx];
+                    if (node.key === nodeKey) {
+                        return node.status === 'online';
+                    }
+                }
+                return false;
             }
         }
     }
 </script>
+<style>
+    .spinner-border-xs {
+        width: 0.65rem;
+        height: 0.65rem;
+        border-width: 0.2em;
+    }
+</style>

@@ -16,14 +16,13 @@ import (
 var logger = logs.GetLogger("master")
 
 type masterTcpServer struct {
-	daemonServers  map[string]bool
 	onShutdown     func()
 	server         rpc.RpcServer
 	channelManager remoting.ChannelManager
 }
 
 func NewMasterTcpServer(address string, onShutdown func(), api *server.ApiWrapper) *masterTcpServer {
-	masterServer := &masterTcpServer{onShutdown: onShutdown, daemonServers: map[string]bool{}}
+	masterServer := &masterTcpServer{onShutdown: onShutdown}
 	masterServer.server = rpc.NewServer(address, masterServer.onServerMessage, func(channel remoting.Channel) {
 		address := channel.GetRemoteIp()
 		key, has := channel.GetAttr("key")
@@ -37,7 +36,6 @@ func NewMasterTcpServer(address string, onShutdown func(), api *server.ApiWrappe
 }
 
 func (self *masterTcpServer) authServer(channel remoting.Channel, request *rpc.Request) *rpc.Response {
-
 	if request.URL == "auth" {
 		address := channel.GetRemoteIp()
 		timestamp, exits := request.GetHeader("timestamp")

@@ -40,8 +40,8 @@ func StartAt(listener *runtimeKit.SignalListener) error {
 	}
 
 	if err := client.Start(); err != nil {
-		dm.Stop()
 		server.Shutdown()
+		dm.Stop()
 		return errors.New("connect master error: " + err.Error())
 	}
 
@@ -54,9 +54,9 @@ func StartAt(listener *runtimeKit.SignalListener) error {
 
 	listener.PrependOnClose(func() {
 		logger.Debug("关闭服务")
-		dm.Stop()
 		client.Stop()
 		server.Shutdown()
+		dm.Stop()
 	})
 
 	return nil

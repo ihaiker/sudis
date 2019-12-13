@@ -24,14 +24,13 @@ func TestForegroundProcess(t *testing.T) {
 	process.statusListener = func(pro *Process, oldState, newState FSMState) {
 		logger.Debugf("from %s to %s", oldState, newState)
 	}
-	process.stdout = os.Stdout
-	process.stderr = os.Stderr
+	process.log = nil
 
-	if err := process.startCommand(func(process *Process) {}); err != nil {
+	if err := process.startCommand(nil); err != nil {
 		t.Fatal(err)
 	}
 
-	<-time.After(time.Second * 60)
+	<-time.After(time.Second * 10)
 
 	if err := process.stopCommand(); err != nil {
 		t.Fatal(err)
@@ -58,8 +57,7 @@ func TestDaemonProcess(t *testing.T) {
 		Args:    []string{"-s", "quit"},
 	}
 	process := NewProcess(program)
-	process.stdout = os.Stdout
-	process.stderr = os.Stderr
+	process.log = os.Stdout
 
 	if err := process.startCommand(nil); err != nil {
 		t.Fatal(err)

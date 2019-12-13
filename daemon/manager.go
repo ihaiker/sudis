@@ -70,6 +70,7 @@ func (self *DaemonManager) Stop() {
 				logger.Debug("stop program", process.Program.Name, " error:", err)
 			}
 		}
+		process.Freed()
 	}
 	logger.Info("stop sudis daemon manager")
 }
@@ -125,6 +126,7 @@ func (self *DaemonManager) RemoveProgram(name string, skip bool) error {
 				return errors.New("程序正在运行")
 			}
 		}
+		p.Freed()
 		if err = self.process.Remove(name); err == nil {
 			if self.statusListener != nil {
 				self.statusListener(p, p.State, "")
@@ -137,9 +139,12 @@ func (self *DaemonManager) RemoveProgram(name string, skip bool) error {
 func (self *DaemonManager) ModifyProgram(program *Program) error {
 	if p, err := self.GetProgram(program.Name); err != nil {
 		return err
+	} else if p.GetStatus().IsRunning() {
+		return errors.New("cant modify running program")
 	} else {
-		p.Program = program
-		return nil
+		program.Id = p.Program.Id
+		_ = self.RemoveProgram(p.Program.Name, false)
+		return self.AddProgram(program)
 	}
 }
 

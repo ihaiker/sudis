@@ -21,9 +21,11 @@ var tailCmd = &cobra.Command{
 		}
 		request := new(rpc.Request)
 		request.Header("num", strconv.Itoa(num))
+		request.URL = "tail"
 
 		if name == "tail" {
 			fmt.Println("line")
+			return nil
 		} else {
 			kill := runtimeKit.NewListener()
 			closeSignal := make(chan struct{})
@@ -41,7 +43,6 @@ var tailCmd = &cobra.Command{
 				close(closeSignal)
 			})
 		}
-		return nil
 	},
 }
 

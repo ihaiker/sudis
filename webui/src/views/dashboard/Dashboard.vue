@@ -75,7 +75,7 @@
                             <div class="text-uppercase text-muted">CPU</div>
                         </div>
                         <div>
-                            <div class="text-value">{{volumns.info.RAM}}</div>
+                            <div class="text-value">{{ramShow(volumns.info.RAM)}}</div>
                             <div class="text-uppercase text-muted">RAM</div>
                         </div>
                     </div>
@@ -87,7 +87,6 @@
 
 <script>
     import SocialBoxChart from "./SocialBoxChart";
-
     export default {
         name: 'dashboard',
         components: {SocialBoxChart},

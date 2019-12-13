@@ -54,6 +54,7 @@ func MakeServerCommand(dm *daemon.DaemonManager) rpc.OnMessage {
 				if pro, err := dm.GetProgram(args[0]); err != nil {
 					response.Error = err
 				} else {
+					pro.Refresh()
 					response.Body, _ = json.Marshal(pro)
 				}
 			}
@@ -72,7 +73,11 @@ func MakeServerCommand(dm *daemon.DaemonManager) rpc.OnMessage {
 					names := dm.ListProgramNames()
 					response.Body, _ = json.Marshal(names)
 				} else if args[0] == "inspect" {
-					response.Body, _ = json.Marshal(dm.ListProcess())
+					process := dm.ListProcess()
+					for _, p := range process {
+						p.Refresh()
+					}
+					response.Body, _ = json.Marshal(process)
 				} else {
 					response.Error = errors.New("Invalid parameter：" + strings.Join(args, " "))
 				}

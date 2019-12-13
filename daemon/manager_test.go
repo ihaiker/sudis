@@ -15,9 +15,7 @@ func TestDaemonManager_Start(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := dm.StartProgram("nginx", func(process *Process) {
-		logs.Info("nginx : ", process.GetStatus())
-	}); err != nil {
+	if err := dm.StartProgram("nginx", nil); err != nil {
 		t.Fatal(err)
 	}
 
