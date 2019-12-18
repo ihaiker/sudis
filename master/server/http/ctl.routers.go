@@ -70,6 +70,9 @@ func Routers(api server.Api, app *iris.Application) {
 			program.Post("/addOrModify", h.Handler(ctl.addOrModifyProgram))
 			program.Put("/command", h.Handler(ctl.commandProgram))
 			program.Get("/detail", h.Handler(ctl.programDetail))
+
+			wsServer := NewLoggerController(api)
+			app.Any("/admin/program/logs", wsServer.Handler())
 		}
 
 		tag := admin.Party("/tag")

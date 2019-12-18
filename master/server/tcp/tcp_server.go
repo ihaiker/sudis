@@ -9,6 +9,7 @@ import (
 	"github.com/ihaiker/gokit/remoting"
 	"github.com/ihaiker/gokit/remoting/rpc"
 	"github.com/ihaiker/sudis/conf"
+	"github.com/ihaiker/sudis/daemon"
 	"github.com/ihaiker/sudis/master/server"
 	"github.com/ihaiker/sudis/master/server/eventbus"
 )
@@ -16,14 +17,18 @@ import (
 var logger = logs.GetLogger("master")
 
 type masterTcpServer struct {
-	onShutdown     func()
-	server         rpc.RpcServer
+	onShutdown func()
+	rpc.RpcServer
 	channelManager remoting.ChannelManager
+	tails          map[string]daemon.TailLogger
 }
 
 func NewMasterTcpServer(address string, onShutdown func(), api *server.ApiWrapper) *masterTcpServer {
-	masterServer := &masterTcpServer{onShutdown: onShutdown}
-	masterServer.server = rpc.NewServer(address, masterServer.onServerMessage, func(channel remoting.Channel) {
+	masterServer := &masterTcpServer{
+		onShutdown: onShutdown,
+		tails:      map[string]daemon.TailLogger{},
+	}
+	masterServer.RpcServer = rpc.NewServer(address, masterServer.onServerMessage, func(channel remoting.Channel) {
 		address := channel.GetRemoteIp()
 		key, has := channel.GetAttr("key")
 		if has {
@@ -31,7 +36,7 @@ func NewMasterTcpServer(address string, onShutdown func(), api *server.ApiWrappe
 		}
 	})
 	masterServer.channelManager = NewServerManager()
-	api.AddApi(&NodeApi{server: masterServer.server})
+	api.AddApi(&NodeApi{server: masterServer})
 	return masterServer
 }
 
@@ -95,18 +100,23 @@ func (self *masterTcpServer) onServerMessage(channel remoting.Channel, request *
 		}
 		eventbus.Send(eventbus.ProgramStatus(event))
 		return rpc.OK(channel, request)
+	case "tail.logger":
+		id, _ := request.GetHeader("id")
+		if tail, has := self.tails[id]; has {
+			tail(id, string(request.Body))
+		}
 	}
 	return errorResponse(request, rpc.ErrNotFount)
 }
 
 func (self *masterTcpServer) Start() (err error) {
-	self.server.SetChannelManager(self.channelManager)
-	err = self.server.Start()
+	self.RpcServer.SetChannelManager(self.channelManager)
+	err = self.RpcServer.Start()
 	return
 }
 
 func (self *masterTcpServer) Stop() error {
-	self.server.Shutdown()
+	self.RpcServer.Shutdown()
 	logger.Info("master tcp closed")
 	return nil
 }

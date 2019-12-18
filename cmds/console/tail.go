@@ -1,9 +1,10 @@
 package console
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/ihaiker/gokit/remoting/rpc"
 	runtimeKit "github.com/ihaiker/gokit/runtime"
+	uuid "github.com/iris-contrib/go.uuid"
 	"github.com/spf13/cobra"
 	"strconv"
 	"time"
@@ -14,35 +15,27 @@ var tailCmd = &cobra.Command{
 	Example: "sudis [console] tail[f] [-n <num>] <programName,...>",
 	PreRunE: preRune, PostRun: runPost,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		name := cmd.CalledAs()
+		name := args[0]
 		num, err := cmd.PersistentFlags().GetInt("num")
 		if err != nil {
 			return err
 		}
+		id, _ := uuid.NewV4()
 		request := new(rpc.Request)
-		request.Header("num", strconv.Itoa(num))
 		request.URL = "tail"
-
-		if name == "tail" {
-			fmt.Println("line")
-			return nil
-		} else {
-			kill := runtimeKit.NewListener()
-			closeSignal := make(chan struct{})
-			go func() {
-				for {
-					select {
-					case <-closeSignal:
-						return
-					case <-time.After(time.Second):
-						fmt.Println(time.Now())
-					}
-				}
-			}()
-			return kill.WaitWithTimeout(time.Second*3, func() {
-				close(closeSignal)
-			})
+		request.Header("num", strconv.Itoa(num))
+		request.Body, _ = json.Marshal([]string{name, "true", id.String()})
+		if response := client.Send(request, time.Second*5); response.Error != nil {
+			return response.Error
 		}
+
+		kill := runtimeKit.NewListener()
+		return kill.WaitWithTimeout(time.Second*7, func() {
+			request := new(rpc.Request)
+			request.URL = "tail"
+			request.Body, _ = json.Marshal([]string{name, "false", id.String()})
+			client.Send(request, time.Second*5)
+		})
 	},
 }
 

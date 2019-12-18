@@ -122,7 +122,7 @@ func (self *programDao) ModifyTag(name, node, tag string, add bool) error {
 }
 
 func (self *programDao) Lost(key string) {
-	_, _ = engine.Cols("status", "time").Update(&Program{Status: daemon.Stoped, Time: Timestamp()}, &Program{Node: key})
+	_, _ = engine.Cols("status").Update(&Program{Status: daemon.Stoped}, &Program{Node: key})
 }
 
 func (self *programDao) Remove(node string, name string) error {

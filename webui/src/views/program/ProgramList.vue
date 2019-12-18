@@ -15,7 +15,8 @@
                     <th>进程名</th>
                     <th>节点</th>
                     <th>标签</th>
-                    <th style="width: 340px;">状态 &amp; 操作</th>
+                    <th style="width: 285px;">状态 &amp; 操作</th>
+                    <th style="width: 55px;">日志</th>
                     <th style="width: 180px;">状态时间</th>
                 </tr>
                 </thead>
@@ -37,6 +38,11 @@
                     </td>
                     <td class="overflow-hidden">
                         <status :program="p" @change="queryPrograms" @edit="editProgram = $event"/>
+                    </td>
+                    <td>
+                        <router-link class="btn btn-sm btn-default" :to="{path:'/admin/program/logs',query:{node:p.node,name:p.name}}">
+                            <i class="fa fa-file-text"/>
+                        </router-link>
                     </td>
                     <td>{{p.time}}</td>
                 </tr>

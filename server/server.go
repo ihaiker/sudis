@@ -67,5 +67,5 @@ func Start() error {
 	if err := StartAt(listener); err != nil {
 		return err
 	}
-	return listener.WaitTimeout(time.Second * 10)
+	return listener.WaitTimeout(time.Second * 7)
 }

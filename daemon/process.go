@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/codeskyblue/kexec"
 	"github.com/ihaiker/gokit/remoting"
-	"io"
 	"net/http"
 	"os"
 	"os/user"
@@ -22,7 +21,7 @@ type Process struct {
 
 	cmd *kexec.KCommand
 
-	log io.Writer
+	log *ProcessLogger
 
 	retryLeft int
 
@@ -42,8 +41,18 @@ func NewProcess(program *Program) *Process {
 	}
 }
 
+func (f *Process) initLogger() (err error) {
+	if f.log, err = NewLogger(f.Program.Logger); err != nil {
+		return
+	}
+	return
+}
 func (f *Process) GetStatus() FSMState {
 	return f.State
+}
+
+func (f *Process) GetLogger() *ProcessLogger {
+	return f.log
 }
 
 func (f *Process) setState(newState FSMState) {
@@ -63,7 +72,7 @@ func (f *Process) setState(newState FSMState) {
 }
 
 func (p *Process) startedCallback(determinedResult chan *Process) {
-	defer func() { recover() }()
+	defer func() { _ = recover() }()
 	if determinedResult != nil {
 		determinedResult <- p
 		close(determinedResult)
@@ -84,7 +93,7 @@ func (p *Process) startCommand(determinedResult chan *Process) (err error) {
 	p.setState(Starting)
 	if err = p.cmd.Start(); err != nil {
 		logger.Debug("start cmd(%s) error: %s", startCmd.Command, err)
-		p.setState(Fatal)
+		p.setState(Fail)
 		return
 	}
 
@@ -96,34 +105,41 @@ func (p *Process) startCommand(determinedResult chan *Process) (err error) {
 			exitErrChan := Async(p.cmd.Wait)
 			select {
 			case exit := <-exitErrChan:
-				p.setState(Fatal)
-				if p.State == Starting {
-					safeCloseBool(startCheck)
+				//关掉检查，这个时候确定已经出问题了
+				safeCloseBool(startCheck)
+
+				if p.State == Stopping { //执行关闭动作直接退出
+					return
 				}
+
 				if exit == nil {
 					logger.Warnf("program(%s) is daemon? do not retry!", p.Program.Name)
 				} else {
 					logger.Warnf("program(%s) %s ", p.Program.Name, exit.Error())
 				}
+
 				if p.retryLeft > 0 {
-					p.waitNextRetry(determinedResult)
+					p.setState(RetryWait)
+					go p.waitNextRetry(determinedResult)
+					return
 				} else {
-					logger.Warnf("program(%s) exit too quick, status -> fatal", p.Program.Name)
+					p.retryLeft = p.Program.StartRetries
+					p.setState(Fail)
+					logger.Warnf("program(%s) exit too quick, status -> fail", p.Program.Name)
 					p.startedCallback(determinedResult)
 					safeCloseSig(p.stopC)
 				}
 			case <-p.stopC:
-				if p.State == Starting {
+				if p.State == Starting || p.State == Running {
 					safeCloseBool(startCheck)
+					_ = p.stopCommand()
 				}
-				_ = p.stopCommand()
 			}
 		}()
 
 		go func() {
 			select {
 			case <-startCheck:
-				p.startedCallback(determinedResult)
 				return
 			case <-time.After(time.Second * time.Duration(p.Program.StartDuration)):
 				p.setState(Running)
@@ -148,10 +164,10 @@ func (p *Process) startCommand(determinedResult chan *Process) (err error) {
 						timer.Reset(time.Second * time.Duration(startCmd.CheckHealth.CheckTtl))
 						if err := p.healthCheck(startCmd); err != nil {
 							logger.Warnf("the program health is error: program=%s, num=%d, error=%s", p.Program.Name, p.Program.StartRetries-p.retryLeft, err)
+							p.setState(Fail)
 							if p.retryLeft > 0 {
-								p.waitNextRetry(determinedResult)
+								go p.waitNextRetry(determinedResult)
 							} else {
-								p.setState(Fatal)
 								p.startedCallback(determinedResult)
 								safeCloseSig(p.stopC)
 							}
@@ -162,6 +178,7 @@ func (p *Process) startCommand(determinedResult chan *Process) (err error) {
 							p.startedCallback(determinedResult)
 						}
 					case <-p.stopC:
+						timer.Stop()
 						_ = p.stopCommand()
 						return
 					}
@@ -210,8 +227,9 @@ func (p *Process) stopCommand() error {
 	p.setState(Stopping)
 	safeCloseSig(p.stopC)
 
+	p.retryLeft = p.Program.StartRetries
+
 	if p.Program.IsForeground() {
-		p.retryLeft = p.Program.StartRetries
 
 		//正常退出模式
 		_ = p.cmd.Terminate(p.Program.StopSign)
@@ -230,7 +248,7 @@ func (p *Process) stopCommand() error {
 	} else {
 		stopCmd, err := p.buildCommand(p.Program.Stop)
 		if err != nil {
-			p.setState(Fatal)
+			p.setState(Fail)
 			return errors.New(fmt.Sprintf("make program(%s) stop command error: %v", p.Program.Name, err))
 		}
 
@@ -253,7 +271,8 @@ func (p *Process) stopCommand() error {
 
 func (p *Process) waitNextRetry(determinedResult chan *Process) {
 	if p.retryLeft <= 0 {
-		p.setState(Fatal)
+		p.retryLeft = p.Program.StartRetries
+		p.setState(Fail)
 		return
 	}
 	p.retryLeft -= 1
@@ -282,7 +301,7 @@ func (p *Process) buildCommand(command *Command) (cmd *kexec.KCommand, err error
 	cmd = kexec.Command(command.Command, args...)
 
 	cmd.Env = os.Environ()
-	if p.Program.Envs != nil || len(p.Program.Envs) > 0 {
+	if p.Program.Envs != nil && len(p.Program.Envs) > 0 {
 		programEvns := p.Program.Envs
 		for idx, env := range programEvns {
 			programEvns[idx] = os.ExpandEnv(env)
@@ -330,9 +349,7 @@ func (p *Process) Refresh() {
 //释放所有资源
 func (p *Process) Freed() {
 	if p.log != nil {
-		if cl, match := p.log.(io.WriteCloser); match {
-			_ = cl.Close()
-		}
+		_ = p.log.Close()
 	}
 }
 

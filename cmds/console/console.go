@@ -1,7 +1,9 @@
 package console
 
 import (
+	"fmt"
 	"github.com/ihaiker/gokit/logs"
+	"github.com/ihaiker/gokit/remoting"
 	"github.com/ihaiker/gokit/remoting/rpc"
 	"github.com/ihaiker/sudis/conf"
 	"github.com/spf13/cobra"
@@ -11,6 +13,15 @@ import (
 var logger = logs.GetLogger("console")
 
 var client rpc.RpcClient
+
+func onMessage(channel remoting.Channel, request *rpc.Request) *rpc.Response {
+	if request.URL == "tail.logger" {
+		fmt.Print(string(request.Body))
+		return nil
+	} else {
+		return rpc.OK(channel, request)
+	}
+}
 
 func preRune(cmd *cobra.Command, args []string) (err error) {
 	sock := conf.Config.Server.Sock
@@ -24,7 +35,7 @@ func preRune(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 	logger.Debug("连接服务端sock: ", sock)
-	client = rpc.NewClient(sock, rpc.OK, nil)
+	client = rpc.NewClient(sock, onMessage, nil)
 	if err = client.Start(); err != nil {
 		logger.Warn("连接服务错误: ", err)
 		return

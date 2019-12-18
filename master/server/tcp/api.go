@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"github.com/ihaiker/gokit/remoting/rpc"
 	"github.com/ihaiker/sudis/daemon"
+	"strconv"
 	"time"
 )
 
 type NodeApi struct {
-	server rpc.RpcServer
+	server *masterTcpServer
 }
 
 func (self *NodeApi) Online(node string) bool {
@@ -108,4 +109,26 @@ func (self *NodeApi) Modify(node, name string, program *daemon.Program) error {
 		return resp.Error
 	}
 	return nil
+}
+
+func (self *NodeApi) TailLogger(node, name, id string, num int, consumer daemon.TailLogger) error {
+	self.server.tails[id] = consumer
+	request := new(rpc.Request)
+	request.URL = "tail"
+	request.Header("num", strconv.Itoa(num))
+	request.Body, _ = json.Marshal([]string{name, "true", id})
+	response := self.server.Send(node, request, time.Second*5)
+	if response.Error != nil {
+		delete(self.server.tails, id)
+	}
+	return response.Error
+}
+
+func (self *NodeApi) UnTailLogger(node, name, id string) error {
+	request := new(rpc.Request)
+	request.URL = "tail"
+	request.Body, _ = json.Marshal([]string{name, "false", id})
+	response := self.server.Send(node, request, time.Second*5)
+	delete(self.server.tails, id)
+	return response.Error
 }

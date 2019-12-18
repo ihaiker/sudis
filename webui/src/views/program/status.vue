@@ -36,10 +36,6 @@
                 <i class="fa fa-trash">&nbsp;删除</i>
             </button>
         </template>
-
-        <button class="btn btn-sm btn-default ml-1">
-            <i class="fa fa-file-text"/>日志
-        </button>
     </div>
 </template>
 

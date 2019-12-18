@@ -144,6 +144,44 @@ func MakeServerCommand(dm *daemon.DaemonManager) rpc.OnMessage {
 					}
 				}
 			}
+		case "tail":
+			{
+				args := []string{}
+				if response.Error = json.Unmarshal(request.Body, &args); response.Error == nil {
+					if len(args) != 3 {
+						response.Error = commons.ErrInvalidParameter
+					} else {
+						name := args[0]
+						reg := args[1]
+						id := args[2]
+						num := 30
+						if numStr, has := request.GetHeader("num"); has {
+							num, _ = strconv.Atoi(numStr)
+						}
+						logger.Debug("接收日志消息。 name=", name, ", reg=", reg, ", id=", id)
+						if program, err := dm.GetProgram(name); err != nil {
+							response.Error = err
+						} else {
+							if "true" == reg {
+								program.GetLogger().Reg(id, func(id, line string) {
+									logRequest := new(rpc.Request)
+									logRequest.URL = "tail.logger"
+									logRequest.Header("id", id)
+									logRequest.Body = []byte(line)
+									_ = channel.Write(logRequest, time.Second*3)
+								}, num)
+								//暴利处理，一分钟后自动关闭，防止程序出错导致异常，
+								go func() {
+									time.Sleep(time.Minute)
+									program.GetLogger().UnReg(id)
+								}()
+							} else {
+								program.GetLogger().UnReg(id)
+							}
+						}
+					}
+				}
+			}
 		default:
 			response.Error = errors.New("InvalidCommand")
 		}

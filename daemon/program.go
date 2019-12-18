@@ -79,6 +79,9 @@ type Program struct {
 
 	AddTime    time.Time `json:"addTime" yaml:"addTime" yaml:"addTime"`
 	UpdateTime time.Time `json:"updateTime" yaml:"updateTime" yaml:"updateTime"`
+
+	//日志文件位置
+	Logger string `json:"logger" yaml:"logger" toml:"logger"`
 }
 
 func (this *Program) IsForeground() bool {

@@ -17,6 +17,9 @@ type Api interface {
 	Remove(node, name string) error
 	Get(node, name string) (*daemon.Process, error)
 	Modify(node, name string, program *daemon.Program) error
+
+	TailLogger(node, name, id string, num int, logger daemon.TailLogger) error
+	UnTailLogger(node, name, id string) error
 }
 
 type ApiWrapper struct {
@@ -106,6 +109,24 @@ func (self *ApiWrapper) Modify(node, name string, program *daemon.Program) error
 	for _, api := range self.Apis {
 		if api.Online(node) {
 			return api.Modify(node, name, program)
+		}
+	}
+	return ErrNodeOutline
+}
+
+func (self *ApiWrapper) TailLogger(node, name, id string, num int, consumer daemon.TailLogger) error {
+	for _, api := range self.Apis {
+		if api.Online(node) {
+			return api.TailLogger(node, name, id, num, consumer)
+		}
+	}
+	return ErrNodeOutline
+}
+
+func (self *ApiWrapper) UnTailLogger(node, name, id string) error {
+	for _, api := range self.Apis {
+		if api.Online(node) {
+			return api.UnTailLogger(node, name, id)
 		}
 	}
 	return ErrNodeOutline

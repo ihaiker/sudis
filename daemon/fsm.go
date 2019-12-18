@@ -16,7 +16,7 @@ const (
 	Starting  = FSMState("starting")
 	Running   = FSMState("running")
 	Stopped   = FSMState("stopped")
-	Fatal     = FSMState("fatal")
+	Fail      = FSMState("fail")
 	RetryWait = FSMState("retry")
 	Stopping  = FSMState("stopping")
 	Stoped    = FSMState("stoped")

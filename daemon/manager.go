@@ -84,6 +84,9 @@ func (self *DaemonManager) AddProgram(program *Program) error {
 		program.Id = self.MaxId()
 	}
 	process := NewProcess(program)
+	if err := process.initLogger(); err != nil {
+		return err
+	}
 	process.statusListener = self.statusListener
 	self.process = append(self.process, process)
 	if self.statusListener != nil {
@@ -142,9 +145,10 @@ func (self *DaemonManager) ModifyProgram(program *Program) error {
 	} else if p.GetStatus().IsRunning() {
 		return errors.New("cant modify running program")
 	} else {
+		p.Freed()
 		program.Id = p.Program.Id
-		_ = self.RemoveProgram(p.Program.Name, false)
-		return self.AddProgram(program)
+		p.Program = program
+		return p.initLogger()
 	}
 }
 

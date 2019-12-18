@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"github.com/ihaiker/gokit/logs"
-	"os"
 	"testing"
 	"time"
 )
@@ -20,11 +19,14 @@ func TestForegroundProcess(t *testing.T) {
 			"baidu.com",
 		},
 	}
-	process := NewProcess(program)
+	program.Logger = "/tmp/sudis.log"
+	process, err := NewProcess(program)
+	if err != nil {
+		t.Fatal(err)
+	}
 	process.statusListener = func(pro *Process, oldState, newState FSMState) {
 		logger.Debugf("from %s to %s", oldState, newState)
 	}
-	process.log = nil
 
 	if err := process.startCommand(nil); err != nil {
 		t.Fatal(err)
@@ -56,8 +58,11 @@ func TestDaemonProcess(t *testing.T) {
 		Command: "nginx",
 		Args:    []string{"-s", "quit"},
 	}
-	process := NewProcess(program)
-	process.log = os.Stdout
+
+	process, err := NewProcess(program)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if err := process.startCommand(nil); err != nil {
 		t.Fatal(err)

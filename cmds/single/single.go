@@ -6,6 +6,7 @@ import (
 	"github.com/ihaiker/sudis/master"
 	"github.com/ihaiker/sudis/server"
 	"github.com/spf13/cobra"
+	"strings"
 	"time"
 )
 
@@ -15,6 +16,14 @@ var Cmd = &cobra.Command{
 		if conf.Config.Server.Key == "" {
 			conf.Config.Server.Key = "single"
 		}
+		idx := strings.Index(conf.Config.Master.Band, ":")
+		if idx == 0 {
+			conf.Config.Server.Master = "tcp://127.0.0.1" + conf.Config.Master.Band
+		} else {
+			conf.Config.Server.Master = "tcp://" + conf.Config.Master.Band
+		}
+		conf.Config.Server.SecurityToken = conf.Config.Master.SecurityToken
+
 		listener := runtimeKit.NewListener()
 		if err := master.StartAt(listener); err != nil {
 			return err
@@ -22,6 +31,6 @@ var Cmd = &cobra.Command{
 		if err := server.StartAt(listener); err != nil {
 			return err
 		}
-		return listener.WaitTimeout(time.Second * 20)
+		return listener.WaitTimeout(time.Second * 7)
 	},
 }
