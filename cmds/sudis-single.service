@@ -1,0 +1,14 @@
+[Unit]
+Description=The sudis endpoint.
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+ExecStart=/usr/local/bin/sudis
+ExecStop=/usr/local/bin/sudis shutdown
+KillSignal=SIGQUIT
+TimeoutStopSec=15
+KillMode=process
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

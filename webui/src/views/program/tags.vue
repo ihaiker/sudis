@@ -1,10 +1,10 @@
 <template>
     <div>
         <button v-if="program.tags && program.tags.length > 0" v-for="tag in program.tags" @click="onEdit"
-                :class="tagShow(tag)" class="btn btn-sm mr-1">{{tag}}
+                :class="tagShow(tag)" class="btn btn-xs mr-1">{{tag}}
         </button>
 
-        <button v-if="!program.tags || program.tags.length === 0" class="btn btn-sm btn-default" @click="onEdit">
+        <button v-if="!program.tags || program.tags.length === 0" class="btn btn-xs btn-default" @click="onEdit">
             <i class="fa fa-plus"/>
         </button>
 
