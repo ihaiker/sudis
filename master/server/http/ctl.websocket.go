@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"github.com/ihaiker/sudis/master/server"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/websocket"
@@ -16,23 +17,39 @@ func NewLoggerController(api server.Api) *LoggerController {
 	wsServer := websocket.New(websocket.Config{})
 
 	wsServer.OnConnection(func(client websocket.Connection) {
-		name := client.Context().URLParam("name")
-		node := client.Context().URLParam("node")
-		uid := strings.ReplaceAll(client.ID(), "-", "")
-		logger.Debugf("订阅日志：%s,%s,%s ", name, node, uid)
-		go func() {
-			err := api.TailLogger(node, name, uid, 30, func(id, line string) {
-				_ = client.EmitMessage([]byte(line))
+		client.OnMessage(func(bytes []byte) {
+			params := &JSON{}
+			if err := json.Unmarshal(bytes, params); err != nil {
+				_ = client.EmitMessage([]byte("认证信息错误！！！"))
+				return
+			}
+			user := params.String("user")
+			ticket := params.String("ticket")
+			name := params.String("name")
+			node := params.String("node")
+			uid := strings.ReplaceAll(client.ID(), "-", "")
+
+			if generatorAuth(user).String("token") != ticket {
+				_ = client.EmitMessage([]byte("认证信息错误！！！"))
+				return
+			}
+
+			client.OnDisconnect(func() {
+				logger.Debugf("取消订阅日志：%s,%s,%s ", name, node, uid)
+				if err := api.UnTailLogger(node, name, uid); err != nil {
+					logger.Debug("取消订阅logger错误：", name, ",node", node, ",error:", err)
+				}
 			})
-			if err != nil {
-				_ = client.EmitMessage([]byte(err.Error()))
-			}
-		}()
-		client.OnDisconnect(func() {
-			logger.Debugf("取消订阅日志：%s,%s,%s ", name, node, uid)
-			if err := api.UnTailLogger(node, name, uid); err != nil {
-				logger.Debug("取消订阅logger错误：", name, ",node", node, ",error:", err)
-			}
+
+			logger.Debugf("订阅日志：%s,%s,%s ", name, node, uid)
+			go func() {
+				err := api.TailLogger(node, name, uid, 30, func(id, line string) {
+					_ = client.EmitMessage([]byte(line))
+				})
+				if err != nil {
+					_ = client.EmitMessage([]byte(err.Error()))
+				}
+			}()
 		})
 	})
 	return &LoggerController{wsServer: wsServer, api: api}

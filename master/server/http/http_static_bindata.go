@@ -7,7 +7,7 @@ import (
 )
 
 func httpStatic(app *iris.Application) {
-	logger.Debug("使用bindata")
+	logger.Info("使用bindata")
 
 	app.Get("/favicon.ico", func(ctx iris.Context) {
 		bs, _ := Asset("webui/dist/favicon.ico")

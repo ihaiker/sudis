@@ -26,14 +26,31 @@
             this.socket.close();
         },
         methods: {
+            getDomain() {
+                if (process.env.NODE_ENV === "development") {
+                    return "ws://127.0.0.1:5984"
+                } else {
+                    let domain = window.location.href.substr(0, window.location.href.indexOf("/", 8));
+                    domain = domain.replace("https://", "wss://");
+                    domain = domain.replace("http://", "ws://");
+                    return domain;
+                }
+            },
+
             init() {
                 if (typeof (WebSocket) === "undefined") {
                     alert("您的浏览器不支持socket")
                 } else {
-                    // 实例化socket
-                    this.socket = new WebSocket("ws://127.0.0.1:5984/admin/program/logs?name=" + this.name + "&node=" + this.node);
-                    // 监听socket连接
-                    this.socket.onopen = this.open;
+                    let self = this;
+                    this.socket = new WebSocket(self.getDomain() + "/admin/program/logs");
+                    this.socket.onopen = () => {
+                        self.socket.send(JSON.stringify({
+                            name: this.name,
+                            node: this.node,
+                            user: localStorage.getItem("x-user"),
+                            ticket: localStorage.getItem("x-ticket")
+                        }));
+                    };
                     // 监听socket消息
                     this.socket.onmessage = this.getMessage;
                 }

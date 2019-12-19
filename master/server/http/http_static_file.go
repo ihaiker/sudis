@@ -7,7 +7,7 @@ import (
 )
 
 func httpStatic(app *iris.Application) {
-	logger.Debug("使用 file resources")
+	logger.Info("使用 file resources")
 
 	app.Favicon("webui/dist/favicon.ico")
 
