@@ -27,6 +27,12 @@
         },
         methods: {
             getDomain() {
+                //如果配置里，就是用配置地址
+                let configDomain = process.env.VUE_APP_WS;
+                if (configDomain !== undefined && configDomain !== '') {
+                    return configDomain;
+                }
+                //如果未配置，测试网使用默认本机地址，其他根据域名解析出ws地址
                 if (process.env.NODE_ENV === "development") {
                     return "ws://127.0.0.1:5984"
                 } else {
