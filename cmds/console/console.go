@@ -44,7 +44,7 @@ func preRune(cmd *cobra.Command, args []string) (err error) {
 }
 
 func runPost(cmd *cobra.Command, args []string) {
-	client.Shutdown()
+	_ = client.Close()
 }
 
 var ConsoleCmd = &cobra.Command{

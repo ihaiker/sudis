@@ -57,13 +57,13 @@ type ProgramController struct {
 	api server.Api
 }
 
-func (self *ProgramController) queryPrograms(ctx iris.Context) []*dao.Program {
+func (self *ProgramController) queryPrograms(ctx iris.Context) *dao.Page {
 	name := ctx.URLParam("name")
 	node := ctx.URLParam("node")
 	tag := ctx.URLParam("tag")
 	status := ctx.URLParam("status")
 	page := ctx.URLParamIntDefault("page", 1)
-	limit := ctx.URLParamIntDefault("limit", 10)
+	limit := ctx.URLParamIntDefault("limit", 12)
 	programs, err := dao.ProgramDao.List(name, node, tag, status, page, limit)
 	AssertErr(err)
 	return programs

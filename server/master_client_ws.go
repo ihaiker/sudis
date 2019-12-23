@@ -16,8 +16,8 @@ func (self *wsMasterClient) Start() error {
 	return nil
 }
 
-func (self *wsMasterClient) Stop() {
-
+func (self *wsMasterClient) Close() error {
+	return nil
 }
 
 func (self *wsMasterClient) Notify(req *rpc.Request) {

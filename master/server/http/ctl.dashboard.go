@@ -67,9 +67,9 @@ func dashboard(ctx iris.Context) *JSON {
 
 	programs, err := dao.ProgramDao.List("", "", "", "", 1, 30000)
 	AssertErr(err)
-	allProgram := len(programs)
+	allProgram := len(programs.Data.([]*dao.Program))
 	startedProgram := 0
-	for _, program := range programs {
+	for _, program := range programs.Data.([]*dao.Program) {
 		if program.Status.IsRunning() {
 			startedProgram += 1
 		}

@@ -149,7 +149,7 @@ func MakeServerCommand(dm *daemon.DaemonManager) rpc.OnMessage {
 				args := []string{}
 				if response.Error = json.Unmarshal(request.Body, &args); response.Error == nil {
 					if len(args) != 3 {
-						response.Error = commons.ErrInvalidParameter
+						response.Error = errors.New("Invalid number of parameters")
 					} else {
 						name := args[0]
 						reg := args[1]

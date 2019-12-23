@@ -1,7 +1,5 @@
 package dao
 
-import "github.com/ihaiker/gokit/commons"
-
 type User struct {
 	Name   string `json:"name" yaml:"name" toml:"name" xorm:"varchar(32) notnull pk 'name'"`
 	Passwd string `json:"-" xorm:"passwd"`
@@ -32,7 +30,7 @@ func (dao *userDao) ModifyPasswd(name, passwd string) error {
 	if _, has, err := dao.Get(name); err != nil {
 		return err
 	} else if !has {
-		return commons.ErrNotFound
+		return ErrNotExist
 	} else {
 		_, err = engine.Update(&User{Passwd: passwd}, &User{Name: name})
 		return err

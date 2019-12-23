@@ -63,6 +63,11 @@ func (self *DaemonManager) Start() error {
 	return nil
 }
 
+func (self *DaemonManager) Close() error {
+	self.Stop()
+	return nil
+}
+
 func (self *DaemonManager) Stop() {
 	for _, process := range self.process {
 		if process.GetStatus().IsRunning() {

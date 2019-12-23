@@ -36,7 +36,7 @@ var shutdownCmd = &cobra.Command{
 		if err := client.Start(); err != nil {
 			return err
 		} else {
-			defer client.Shutdown()
+			defer func() { _ = client.Close() }()
 			//auth
 			{
 				if resp := client.Send(authRequest(), time.Second*3); resp.Error != nil {

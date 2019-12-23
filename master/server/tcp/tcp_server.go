@@ -116,7 +116,6 @@ func (self *masterTcpServer) Start() (err error) {
 }
 
 func (self *masterTcpServer) Stop() error {
-	self.RpcServer.Shutdown()
 	logger.Info("master tcp closed")
-	return nil
+	return self.RpcServer.Close()
 }

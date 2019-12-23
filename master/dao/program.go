@@ -2,9 +2,9 @@ package dao
 
 import (
 	"errors"
-	"github.com/ihaiker/gokit/commons"
 	"github.com/ihaiker/sudis/daemon"
 	"strings"
+	"xorm.io/xorm"
 )
 
 type Tags []string
@@ -64,22 +64,35 @@ func (self *programDao) Ready() {
 	logger.Debug(err)
 }
 
-func (self *programDao) List(name, node, tag string, status string, page, limit int) (programs []*Program, err error) {
-	programs = make([]*Program, 0)
-	s := engine.Desc("sort").Asc("time")
-	if name != "" {
-		s = s.And("name like ?", "%"+name+"%")
+func (self *programDao) List(name, node, tag string, status string, page, limit int) (pageInfo *Page, err error) {
+	sn := func() *xorm.Session {
+		s := engine.Desc("sort").Asc("time")
+		if name != "" {
+			s = s.And("name like ?", "%"+name+"%")
+		}
+		if node != "" {
+			s = s.And("node = ?", node)
+		}
+		if tag != "" {
+			s = s.And(" tags like ?", "%("+tag+")%")
+		}
+		if status != "" {
+			s = s.And("status = ?", status)
+		}
+		return s
 	}
-	if node != "" {
-		s = s.And("node = ?", node)
+
+	programs := make([]*Program, 0)
+	pageInfo = &Page{
+		Total: 0,
+		Page:  page,
+		Limit: limit,
 	}
-	if tag != "" {
-		s = s.And(" tags like ?", "%("+tag+")%")
+	if pageInfo.Total, err = sn().Count(new(Program)); err != nil {
+		return
 	}
-	if status != "" {
-		s = s.And("status = ?", status)
-	}
-	err = s.Limit(limit, (page-1)*limit).Find(&programs)
+	err = sn().Limit(limit, (page-1)*limit).Find(&programs)
+	pageInfo.Data = programs
 	return
 }
 
@@ -109,7 +122,7 @@ func (self *programDao) ModifyTag(name, node, tag string, add bool) error {
 	if pro, has, err := self.Get(name, node); err != nil {
 		return err
 	} else if !has {
-		return commons.ErrNotFound
+		return ErrNotExist
 	} else {
 		if add {
 			pro.Tags.Add(tag)

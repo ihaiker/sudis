@@ -10,49 +10,35 @@
                 </div>
             </div>
         </div>
-        <div class="col-auto pl-0">
-            <div class="form-group">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-prepend">
-                        <span class="input-group-text">所属节点</span>
-                    </span>
-                    <select class="form-control" v-model="form.node">
-                        <option value="">所有节点　　　　　　　　　</option>
-                        <option v-for="node in nodes" :value="node.key">{{node.tag === "" ? node.key : node.tag }}</option>
-                    </select>
-                </div>
+
+        <div class="col-auto">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
+                <button class="btn" @click="onNode('')" :class="form.node === ''?'btn-primary':'btn-default'">所有节点</button>
+                <button class="btn" v-for="node in nodes" :class="form.node === node.key ? 'btn-primary':'btn-default'"
+                        @click="onNode(node.key)">{{node.tag === "" ? node.key : node.tag }}
+                </button>
             </div>
         </div>
-        <div class="col-auto pl-0">
-            <div class="form-group">
-                <div class="input-group input-group-sm">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">含有标签</span>
-                    </div>
-                    <select class="form-control" v-model="form.tag">
-                        <option value="">所有标签</option>
-                        <option v-for="tag in tags" :value="tag.name">{{tag.name}}</option>
-                    </select>
-                </div>
+        <div class="col-auto">
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn" :class="form.tag === ''?'btn-primary':'btn-default'" @click="onTag('')">所有标签</button>
+                <button class="btn" v-for="tag in tags" :class="tag.name === form.tag? tag.class : 'btn-default' "
+                        @click="onTag(tag.name)" style="min-width: 60px;">{{tag.name}}
+                </button>
             </div>
         </div>
-        <div class="col-auto pl-0">
-            <div class="form-group">
-                <div class="input-group input-group-sm">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">当前状态</span>
-                    </div>
-                    <select class="form-control" v-model="form.status">
-                        <option value="">所有状态</option>
-                        <option value="ready">准备</option>
-                        <option value="running">运行</option>
-                        <option value="stoped">停止</option>
-                        <option value="fail">异常</option>
-                    </select>
-                </div>
+
+        <div class="col-auto ">
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn" @click="onStatus('')" :class="form.status === '' ? 'btn-primary' : 'btn-default' ">所有状态</button>
+                <button class="btn" @click="onStatus('ready')" :class="form.status === 'ready' ? 'btn-outline-primary' : 'btn-default' ">准备</button>
+                <button class="btn" @click="onStatus('running')" :class="form.status === 'running' ? 'btn-success' : 'btn-default' ">运行</button>
+                <button class="btn" @click="onStatus('stoped')" :class="form.status === 'stoped' ? 'btn-dark' : 'btn-default' ">停止</button>
+                <button class="btn" @click="onStatus('fail')" :class="form.status === 'fail' ? 'btn-danger' : 'btn-default' ">异常</button>
             </div>
         </div>
-        <div class="col-auto pl-0">
+
+        <div class="col-auto">
             <button class="btn btn-sm btn-default" @click="onSearch">
                 <i class="fa fa-search"/> 搜索
             </button>
@@ -61,8 +47,6 @@
             </button>
             <slot/>
         </div>
-
-
     </div>
 </template>
 
@@ -101,6 +85,18 @@
             this.onSearch()
         },
         methods: {
+            onStatus(status){
+                this.form.status = status;
+                this.onSearch();
+            },
+            onTag(tag) {
+                this.form.tag = tag;
+                this.onSearch();
+            },
+            onNode(node) {
+                this.form.node = node;
+                this.onSearch();
+            },
             onSearch() {
                 this.$emit("search", this.form);
             },

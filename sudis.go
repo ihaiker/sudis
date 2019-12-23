@@ -4,6 +4,7 @@ import (
 	"github.com/ihaiker/gokit/config"
 	"github.com/ihaiker/gokit/logs"
 	"github.com/ihaiker/sudis/cmds/console"
+	"github.com/ihaiker/sudis/cmds/initd"
 	"github.com/ihaiker/sudis/cmds/master"
 	"github.com/ihaiker/sudis/cmds/server"
 	"github.com/ihaiker/sudis/cmds/single"
@@ -80,6 +81,7 @@ func init() {
 	rootCmd.AddCommand(master.Cmd)
 	rootCmd.AddCommand(console.Cmds...)
 	rootCmd.AddCommand(single.Cmd)
+	rootCmd.AddCommand(initd.Cmd)
 }
 
 func main() {

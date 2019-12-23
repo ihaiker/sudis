@@ -38,6 +38,16 @@ let mixins = {
         now() {
             return utils.now()
         },
+        twoJsonMerge(json1, json2) {
+            var length1 = 0, length2 = 0, jsonStr, str;
+            for (var ever in json1) length1++;
+            for (var ever in json2) length2++;
+            if (length1 && length2) str = ',';
+            else str = '';
+            jsonStr = ((JSON.stringify(json1)).replace(/,}/, '}') + (JSON.stringify(json2)).replace(/,}/, '}')).replace(/}{/, str);
+            return JSON.parse(jsonStr);
+        },
+
     }
 };
 export default  mixins;

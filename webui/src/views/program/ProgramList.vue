@@ -21,7 +21,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(p) in programs">
+                <tr v-for="(p) in programs.data">
                     <td>
                         <router-link :to="{path:'/admin/program',query:{node:p.node,name:p.name}}">
                             {{p.name}}
@@ -48,6 +48,7 @@
                 </tr>
                 </tbody>
             </table>
+            <XPage :items="programs" @change="queryPrograms"/>
         </div>
         <Create :program="editProgram" :nodes="nodes" @change="queryPrograms"/>
     </div>
@@ -59,15 +60,15 @@
     import Create from "./create";
     import Tags from "./tags";
     import vTitle from "../../plugins/vTitle";
+    import XPage from "../../plugins/XPage";
 
     export default {
         name: "ProgramList",
-        components: {vTitle, Tags, Create, Status, Search},
+        components: {XPage, vTitle, Tags, Create, Status, Search},
         data: () => ({
-            programs: [],
-            tags: [],
-            nodes: [],
-            editProgram: null
+            programs: {},
+            tags: [], nodes: [],
+            editProgram: null, form: {},
         }),
         mounted() {
             this.queryNodes();
@@ -87,10 +88,10 @@
             },
 
             queryPrograms(form) {
-                let requestData = form || {};
+                this.form = this.twoJsonMerge(this.form, form || {});
                 let self = this;
-                self.programs = [];
-                this.$axios.get("/admin/program/list?" + this.$form.transformRequest[0](requestData))
+                self.programs = {};
+                this.$axios.get("/admin/program/list?" + this.$form.transformRequest[0](this.form))
                     .then(res => self.programs = res)
                     .catch(e => {
                         self.$toast.error(e.message);
