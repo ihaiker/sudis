@@ -27,6 +27,12 @@ func (self *DaemonManager) SetStatusListener(lis FSMStatusListener) {
 	}
 }
 
+func (self *DaemonManager) notifyStatus(process *Process, oldStatus, newStatus FSMState) {
+	if self.statusListener != nil {
+		self.statusListener(process, oldStatus, newStatus)
+	}
+}
+
 func (self *DaemonManager) Start() error {
 	if !self.dir.IsDir() {
 		if err := self.dir.Mkdir(); err != nil {
@@ -94,9 +100,7 @@ func (self *DaemonManager) AddProgram(program *Program) error {
 	}
 	process.statusListener = self.statusListener
 	self.process = append(self.process, process)
-	if self.statusListener != nil {
-		self.statusListener(process, "", process.State)
-	}
+	self.notifyStatus(process, "", process.State)
 	return nil
 }
 
@@ -136,9 +140,7 @@ func (self *DaemonManager) RemoveProgram(name string, skip bool) error {
 		}
 		p.Freed()
 		if err = self.process.Remove(name); err == nil {
-			if self.statusListener != nil {
-				self.statusListener(p, p.State, "")
-			}
+			self.notifyStatus(p, p.State, "")
 		}
 		return err
 	}
@@ -153,6 +155,7 @@ func (self *DaemonManager) ModifyProgram(program *Program) error {
 		p.Freed()
 		program.Id = p.Program.Id
 		p.Program = program
+		self.notifyStatus(p, "", p.State)
 		return p.initLogger()
 	}
 }

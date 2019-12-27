@@ -26,11 +26,14 @@
                         <router-link :to="{path:'/admin/program',query:{node:p.node,name:p.name}}">
                             {{p.name}}
                         </router-link>
+                        <template v-if="p.description">
+                            <br/><span class="small">{{p.description}}</span>
+                        </template>
                     </td>
                     <td>
                         {{nodeShow(p.node)}}
                         <span v-if="!nodeOnline(p.node)" class="text-danger">
-                             <span class="spinner-border spinner-border-xs" role="status" aria-hidden="true"/>
+                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"/>
                         </span>
                     </td>
                     <td>
@@ -124,5 +127,9 @@
         width: 0.65rem;
         height: 0.65rem;
         border-width: 0.2em;
+    }
+    .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+        color: #fff;
+        background-color: #2f353a;
     }
 </style>

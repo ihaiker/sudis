@@ -7,7 +7,9 @@ require (
 	github.com/Shopify/goreferrer v0.0.0-20181106222321-ec9c9a553398 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/aymerick/raymond v2.0.2+incompatible // indirect
+	github.com/blang/semver v3.5.1+incompatible
 	github.com/codeskyblue/kexec v0.0.0-20180119015717-5a4bed90d99a
+	github.com/coreos/go-semver v0.2.0
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/flosch/pongo2 v0.0.0-20190707114632-bbf5a6c351f4 // indirect
@@ -54,6 +56,7 @@ require (
 	golang.org/x/sys v0.0.0-20191128015809-6d18c012aee9 // indirect
 	golang.org/x/text v0.3.2
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 	xorm.io/core v0.7.2
 	xorm.io/xorm v0.8.0

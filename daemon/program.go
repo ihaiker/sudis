@@ -45,6 +45,8 @@ type Program struct {
 	//程序名称
 	Name string `json:"name" yaml:"name" yaml:"name"`
 
+	Description string `json:"description" yaml:"description" toml:"description"`
+
 	//工作目录
 	WorkDir string `json:"workDir" yaml:"workDir" yaml:"workDir"`
 

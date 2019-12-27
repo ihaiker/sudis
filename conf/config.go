@@ -1,9 +1,5 @@
 package conf
 
-import (
-	"os"
-)
-
 type Server struct {
 	//客户端唯一标识
 	Key string `json:"key" yaml:"key" toml:"key"`
@@ -54,12 +50,10 @@ type SudisConfig struct {
 var Config *SudisConfig
 
 func init() {
-	cwd, _ := os.Getwd()
-	sock := cwd + "/conf/sudis.sock"
 	Config = &SudisConfig{
 		Server: &Server{
-			Dir:  cwd + "/conf/programs",
-			Sock: "unix:/" + sock,
+			Dir:  "/etc/sudis/programs",
+			Sock: "unix://etc/sudis/sudis.sock",
 		},
 		Master: &Master{
 			Band:          "127.0.0.1:5983",
@@ -68,7 +62,7 @@ func init() {
 			SecurityToken: "4E4AD35C6C0BEB20DC343A1E8F7E32D4",
 			Database: &Database{
 				Type: "sqlite3",
-				Url:  cwd + "/conf/sudis.db",
+				Url:  "/etc/sudis/sudis.db",
 			},
 			Salt: "2CCAKYGBPTCET2S6",
 		},

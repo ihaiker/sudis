@@ -29,6 +29,11 @@ var rootCmd = &cobra.Command{
 	Long:    "sudis, 一个分布式进程控制程序。\n\tBuild: " + BUILD_TIME + ", Go: " + runtime.Version() + ", GitLog: " + GITLOG_VERSION,
 	Version: VERSION + "",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		//initd不设置config
+		if cmd.Name() == initd.Cmd.Name() {
+			return nil
+		}
+
 		if debug, err := cmd.Root().PersistentFlags().GetBool("debug"); err != nil {
 			return err
 		} else if debug {

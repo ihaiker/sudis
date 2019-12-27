@@ -48,12 +48,13 @@ func (t *Tags) Remove(tag string) {
 }
 
 type Program struct {
-	Name   string          `json:"name" yaml:"name" toml:"name" xorm:"name"`
-	Node   string          `json:"node" yaml:"node" toml:"node" xorm:"node"`
-	Tags   Tags            `json:"tags" yaml:"tags" toml:"tags" xorm:"tags"`
-	Status daemon.FSMState `json:"status" yaml:"status" toml:"status" xorm:"status"`
-	Time   string          `json:"time" yaml:"time" toml:"time" xorm:"time"`
-	Sort   uint64          `json:"sort" yaml:"sort" toml:"sort" xorm:"sort"`
+	Name        string          `json:"name" yaml:"name" toml:"name" xorm:"name"`
+	Description string          `json:"description" yaml:"description" toml:"description"`
+	Node        string          `json:"node" yaml:"node" toml:"node" xorm:"node"`
+	Tags        Tags            `json:"tags" yaml:"tags" toml:"tags" xorm:"tags"`
+	Status      daemon.FSMState `json:"status" yaml:"status" toml:"status" xorm:"status"`
+	Time        string          `json:"time" yaml:"time" toml:"time" xorm:"time"`
+	Sort        uint64          `json:"sort" yaml:"sort" toml:"sort" xorm:"sort"`
 }
 
 type programDao struct {
@@ -68,7 +69,7 @@ func (self *programDao) List(name, node, tag string, status string, page, limit 
 	sn := func() *xorm.Session {
 		s := engine.Desc("sort").Asc("time")
 		if name != "" {
-			s = s.And("name like ?", "%"+name+"%")
+			s = s.And("(name like ? or description like ?)", "%"+name+"%", "%"+name+"%")
 		}
 		if node != "" {
 			s = s.And("node = ?", node)
@@ -113,8 +114,9 @@ func (self *programDao) Add(program *Program) error {
 	}
 }
 
-func (self *programDao) UpdateStatus(node, name string, status daemon.FSMState) error {
-	_, err := engine.Cols("status").Update(&Program{Status: status}, &Program{Node: node, Name: name})
+func (self *programDao) UpdateStatus(node, name, description string, status daemon.FSMState) error {
+	_, err := engine.Cols("status", "description").
+		Update(&Program{Status: status, Description: description}, &Program{Node: node, Name: name})
 	return err
 }
 

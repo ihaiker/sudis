@@ -32,23 +32,25 @@ func (self *CommandListener) newNode(ip, key string) {
 		for _, name := range names {
 			if p, err := self.Api.Get(key, name); err == nil {
 				status := p.GetStatus()
-				self.addOrModifyProgram(key, name, status)
+				self.addOrModifyProgram(key, p.Program, status)
 			}
 		}
 	}
 }
 
-func (self *CommandListener) addOrModifyProgram(node, name string, status daemon.FSMState) {
+func (self *CommandListener) addOrModifyProgram(node string, program *daemon.Program, status daemon.FSMState) {
+	name := program.Name
 	_, has, err := dao.ProgramDao.Get(name, node)
 	if !has || err != nil {
 		pro := &dao.Program{
-			Name: name, Node: node, Status: status,
+			Name: name, Description: program.Description,
+			Node: node, Status: status,
 			Tags: []string{}, Time: dao.Timestamp(), Sort: 0,
 		}
 		if err = dao.ProgramDao.Add(pro); err != nil {
 			logger.Warn("添加程序异常：node=", node, ",name=", name)
 		}
-	} else if err = dao.ProgramDao.UpdateStatus(node, name, status); err != nil {
+	} else if err = dao.ProgramDao.UpdateStatus(node, name, program.Description, status); err != nil {
 		logger.Error("更新进程状态异常：node=", node, ",name=", name, ",status=", status, ",error:", err)
 	} else {
 		logger.Debug("更新进程状态：node=", node, ",name=", name, ",status=", status)
@@ -74,7 +76,8 @@ func (self *CommandListener) programStatus(event *ProgramStatusEvent) {
 			logger.Warn("删除程序异常：node=", event.Key, ",name=", event.Name, ",error=", err)
 		}
 	} else {
-		self.addOrModifyProgram(event.Key, event.Name, daemon.FSMState(event.NewStatus))
+		p, _ := self.Api.Get(event.Key, event.Name)
+		self.addOrModifyProgram(event.Key, p.Program, daemon.FSMState(event.NewStatus))
 	}
 }
 

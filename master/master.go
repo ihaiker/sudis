@@ -28,7 +28,7 @@ func StartAt(wait *runtimeKit.SignalListener) error {
 		return err
 	}
 
-	servers := []server.MasterServer{}
+	var servers []server.MasterServer
 	api := server.NewApiWrapper()
 	if conf.Config.Master.Band != "" {
 		tcpServer := tcp.NewMasterTcpServer(conf.Config.Master.Band, func() {
@@ -43,16 +43,16 @@ func StartAt(wait *runtimeKit.SignalListener) error {
 	eventbus.Service.AddListener(&eventbus.CommandListener{Api: api})
 	servers = append(servers, eventbus.Service)
 
-	for _, server := range servers {
-		if err := server.Start(); err != nil {
+	for _, service := range servers {
+		if err := service.Start(); err != nil {
 			return err
 		}
 	}
 
 	wait.OnClose(func() {
-		for _, server := range servers {
-			if err := server.Stop(); err != nil {
-				logger.Warn("close server error:", err)
+		for _, service := range servers {
+			if err := service.Stop(); err != nil {
+				logger.Warn("close service error:", err)
 			}
 		}
 	})

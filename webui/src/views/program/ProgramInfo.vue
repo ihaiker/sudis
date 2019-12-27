@@ -7,7 +7,7 @@
                 </router-link>
             </li>
             <li class="breadcrumb-item">
-                程序详情：{{$route.query.name}}
+                {{$route.query.name}}
             </li>
         </ol>
         <div v-if="program" class="p-3">
@@ -15,7 +15,7 @@
                 <tbody>
                 <tr>
                     <td width="100px">程序名称：</td>
-                    <td>{{program.name}}</td>
+                    <td><span class="text-primary">{{program.name}}</span> {{program.description}}</td>
                     <td width="100px">所属节点：</td>
                     <td>{{program.node}}</td>
                 </tr>
@@ -56,14 +56,14 @@
                 </tbody>
             </table>
 
-            <div class="card card-accent-primary">
+            <div v-if="program.pid != 0" class="card card-accent-primary">
                 <div class="card-header">
                     <i class="icon-speedometer"/>内存使用情况
                 </div>
                 <RAM :line-data="ramData"/>
             </div>
 
-            <div class="card card-accent-dark">
+            <div v-if="program.pid !== 0" class="card card-accent-dark">
                 <div class="card-header">
                     <i class="icon-speedometer"/>CPU使用情况
                 </div>
@@ -113,6 +113,7 @@
                     if (self.ramData.length >= 200) {
                         self.ramData.shift();
                     }
+                    self.show = (self.program.pid !== 0);
                     let now = self.now();
                     self.cpuData.push({name: now.name, value: [now.show, self.program.cpu]});
                     self.ramData.push({name: now.name, value: [now.show, self.program.rss]});

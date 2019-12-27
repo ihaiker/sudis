@@ -7,7 +7,6 @@
                 </div>
                 <input class="form-control" v-model="form.name" placeholder="只能为字母、数字和下划线组合！" :disabled="edit">
             </div>
-
             <div class="input-group input-group-sm mt-2">
                     <span class="input-group-prepend">
                         <span class="input-group-text">所属节点</span>
@@ -16,6 +15,12 @@
                     <option value="">选择节点</option>
                     <option v-for="node in nodes" :value="node.key">{{node.tag === "" ? node.key : node.tag}}</option>
                 </select>
+            </div>
+            <div class="input-group input-group-sm mt-2">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">描述信息</div>
+                </div>
+                <input class="form-control" v-model="form.description" placeholder="描述信息">
             </div>
 
             <div class="input-group input-group-sm mt-2">
