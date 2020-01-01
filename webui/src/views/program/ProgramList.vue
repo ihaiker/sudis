@@ -128,8 +128,7 @@
         height: 0.65rem;
         border-width: 0.2em;
     }
-    .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
-        color: #fff;
-        background-color: #2f353a;
+    table.table-hover>tbody>tr:hover>td, table.table-hover>tbody>tr:hover>th {
+        background-color: rgba(37, 236, 49, 0.29);
     }
 </style>
