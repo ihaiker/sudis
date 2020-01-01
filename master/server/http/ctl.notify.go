@@ -34,7 +34,7 @@ func (self *NotifyController) test(ctx iris.Context) int {
 	nt := new(dao.Notify)
 	AssertErr(ctx.ReadJSON(nt))
 
-	config := new(JSON)
+	config := new(dao.JSON)
 	AssertErr(json.Unmarshal([]byte(nt.Config), config))
 
 	if nt.Name == "email" {

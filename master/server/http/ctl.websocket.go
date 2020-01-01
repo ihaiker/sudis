@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"github.com/ihaiker/sudis/master/dao"
 	"github.com/ihaiker/sudis/master/server"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/websocket"
@@ -18,7 +19,7 @@ func NewLoggerController(api server.Api) *LoggerController {
 
 	wsServer.OnConnection(func(client websocket.Connection) {
 		client.OnMessage(func(bytes []byte) {
-			params := &JSON{}
+			params := &dao.JSON{}
 			if err := json.Unmarshal(bytes, params); err != nil {
 				_ = client.EmitMessage([]byte("认证信息错误！！！"))
 				return

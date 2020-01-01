@@ -8,8 +8,8 @@ import (
 
 type UserController struct{}
 
-func (self *UserController) login(ctx iris.Context) *JSON {
-	json := &JSON{}
+func (self *UserController) login(ctx iris.Context) *dao.JSON {
+	json := &dao.JSON{}
 	AssertErr(ctx.ReadJSON(json))
 
 	name := json.String("name")
@@ -28,7 +28,7 @@ func (self *UserController) queryUser(ctx iris.Context) []*dao.User {
 }
 
 func (self *UserController) addUser(ctx iris.Context) int {
-	json := &JSON{}
+	json := &dao.JSON{}
 	AssertErr(ctx.ReadJSON(json))
 	user := &dao.User{
 		Name:   json.String("name"),
@@ -47,7 +47,7 @@ func (self *UserController) deleteUser(ctx iris.Context) int {
 }
 
 func (self *UserController) modifyPasswd(ctx iris.Context) int {
-	json := &JSON{}
+	json := &dao.JSON{}
 	AssertErr(ctx.ReadJSON(json))
 	name := json.String("name")
 	passwd := json.String("passwd")

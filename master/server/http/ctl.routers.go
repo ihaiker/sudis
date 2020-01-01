@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/ihaiker/sudis/conf"
+	"github.com/ihaiker/sudis/master/dao"
 	"github.com/ihaiker/sudis/master/server"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/context"
@@ -18,10 +19,10 @@ func md5auth(slat, username string) string {
 }
 
 //用户登录生成token
-func generatorAuth(user string) *JSON {
+func generatorAuth(user string) *dao.JSON {
 	slat := conf.Config.Master.Salt
 	token := md5auth(slat, user)
-	return &JSON{"token": token, "user": user}
+	return &dao.JSON{"token": token, "user": user}
 }
 
 //验证token
@@ -36,7 +37,7 @@ func checkAuth(ctx iris.Context) bool {
 func authed(ctx context.Context) {
 	if !checkAuth(ctx) {
 		ctx.StatusCode(iris.StatusUnauthorized)
-		ctx.JSON(JSON{
+		ctx.JSON(dao.JSON{
 			"error":   "authFail",
 			"message": "认证失败",
 		})

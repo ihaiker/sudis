@@ -10,12 +10,7 @@
     export default {
         name: "attrs",
         data: () => ({
-            attrs: {
-                Id: "程序ID", Node: "节点", Name: "程序名称", WorkDir: "工作目录", User: "运行用户",
-                Envs: "环境变量", State: "状态",
-                "Start.Command": "启动命令", "Start.Args": "启动命令参数",
-                "Stop.Command": "停止命令", "Stop.Args": "停止命令参数",
-            },
+            attrs: {Node: "节点", Name: "程序名称", State: "状态",},
         }),
         methods: {
             setAttr(attr) {

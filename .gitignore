@@ -12,7 +12,7 @@
 .idea
 /conf/programs
 /conf/sudis.sock
-/conf/sudis.db
+/conf/sudis.db*
 /master/server/http/http_static_bindata_assets.go
 /.env
 /conf/logs.yaml

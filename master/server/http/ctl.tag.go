@@ -15,7 +15,7 @@ func (self *TagsController) queryTag(ctx iris.Context) []*dao.Tag {
 }
 
 func (self *TagsController) addOrModify(ctx iris.Context) int {
-	json := &JSON{}
+	json := &dao.JSON{}
 	AssertErr(ctx.ReadJSON(json))
 
 	name := json.String("name")

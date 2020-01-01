@@ -90,9 +90,10 @@ func (self *DaemonManager) AddProgram(program *Program) error {
 	if _, err := self.GetProgram(program.Name); err != ErrNotFound {
 		return ErrExists
 	}
-
+	oldStatus := Ready
 	if program.Id == 0 {
 		program.Id = self.MaxId()
+		oldStatus = ""
 	}
 	process := NewProcess(program)
 	if err := process.initLogger(); err != nil {
@@ -100,7 +101,7 @@ func (self *DaemonManager) AddProgram(program *Program) error {
 	}
 	process.statusListener = self.statusListener
 	self.process = append(self.process, process)
-	self.notifyStatus(process, "", process.State)
+	self.notifyStatus(process, oldStatus, process.State)
 	return nil
 }
 

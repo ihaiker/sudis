@@ -1,4 +1,4 @@
-package http
+package dao
 
 import (
 	"fmt"

@@ -21,7 +21,7 @@ func (self *NodeApi) ListProgramNames(node string) ([]string, error) {
 	req := new(rpc.Request)
 	req.URL = "list"
 	req.Body, _ = json.Marshal(&[]string{})
-	programNames := []string{}
+	programNames := make([]string, 0)
 	if resp := self.server.Send(node, req, time.Second*7); resp.Error != nil {
 		return nil, resp.Error
 	} else if err := json.Unmarshal(resp.Body, &programNames); err != nil {
@@ -33,7 +33,7 @@ func (self *NodeApi) ListProgram(node string) ([]*daemon.Process, error) {
 	req := new(rpc.Request)
 	req.URL = "list"
 	req.Body, _ = json.Marshal(&[]string{"inspect"})
-	processes := []*daemon.Process{}
+	processes := make([]*daemon.Process, 0)
 	if resp := self.server.Send(node, req, time.Second*7); resp.Error != nil {
 		return nil, resp.Error
 	} else if err := json.Unmarshal(resp.Body, &processes); err != nil {

@@ -41,6 +41,7 @@ func StartAt(wait *runtimeKit.SignalListener) error {
 	servers = append(servers, httpServer)
 
 	eventbus.Service.AddListener(&eventbus.CommandListener{Api: api})
+	eventbus.Service.AddListener(&eventbus.NotifyListener{})
 	servers = append(servers, eventbus.Service)
 
 	for _, service := range servers {

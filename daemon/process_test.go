@@ -20,10 +20,8 @@ func TestForegroundProcess(t *testing.T) {
 		},
 	}
 	program.Logger = "/tmp/sudis.log"
-	process, err := NewProcess(program)
-	if err != nil {
-		t.Fatal(err)
-	}
+	process := NewProcess(program)
+
 	process.statusListener = func(pro *Process, oldState, newState FSMState) {
 		logger.Debugf("from %s to %s", oldState, newState)
 	}
@@ -34,7 +32,7 @@ func TestForegroundProcess(t *testing.T) {
 
 	<-time.After(time.Second * 10)
 
-	if err := process.stopCommand(); err != nil {
+	if err := process.stopCommand(false); err != nil {
 		t.Fatal(err)
 	}
 
@@ -59,10 +57,7 @@ func TestDaemonProcess(t *testing.T) {
 		Args:    []string{"-s", "quit"},
 	}
 
-	process, err := NewProcess(program)
-	if err != nil {
-		t.Fatal(err)
-	}
+	process := NewProcess(program)
 
 	if err := process.startCommand(nil); err != nil {
 		t.Fatal(err)
@@ -70,7 +65,7 @@ func TestDaemonProcess(t *testing.T) {
 
 	<-time.After(time.Hour)
 
-	if err := process.stopCommand(); err != nil {
+	if err := process.stopCommand(false); err != nil {
 		t.Fatal(err)
 	}
 

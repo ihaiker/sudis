@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ihaiker/gokit/commons"
 	"github.com/ihaiker/gokit/logs"
+	"github.com/ihaiker/sudis/master/dao"
 	"github.com/ihaiker/sudis/master/server"
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris"
@@ -56,7 +57,7 @@ func recoverFn(ctx context.Context) {
 					ctx.StatusCode(500)
 
 					ctx.ContentType("application/json;charset=UTF-8")
-					_, _ = ctx.JSON(&JSON{"error": "InternalServerError", "message": fmt.Sprintf("%v", err)})
+					_, _ = ctx.JSON(&dao.JSON{"error": "InternalServerError", "message": fmt.Sprintf("%v", err)})
 				}
 			}
 			ctx.StopExecution()
@@ -69,10 +70,10 @@ var app = newApplication()
 
 func init() {
 	app.OnErrorCode(iris.StatusNotFound, func(ctx iris.Context) {
-		_, _ = ctx.JSON(JSON{"error": "notfound", "message": "the page not found!" + ctx.Request().RequestURI})
+		_, _ = ctx.JSON(dao.JSON{"error": "notfound", "message": "the page not found!" + ctx.Request().RequestURI})
 	})
 	app.Get("/health", func(ctx iris.Context) {
-		_, _ = ctx.JSON(JSON{"status": "UP"})
+		_, _ = ctx.JSON(dao.JSON{"status": "UP"})
 	})
 }
 

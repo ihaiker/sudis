@@ -70,7 +70,7 @@ func (self *ProgramController) queryPrograms(ctx iris.Context) *dao.Page {
 }
 
 func (self *ProgramController) modifyProgramTag(ctx iris.Context) int {
-	json := &JSON{}
+	json := &dao.JSON{}
 	AssertErr(ctx.ReadJSON(json))
 	name := json.String("name")
 	node := json.String("node")
@@ -103,7 +103,7 @@ func (self *ProgramController) addOrModifyProgram(ctx iris.Context) int {
 }
 
 func (self *ProgramController) commandProgram(ctx iris.Context) int {
-	json := &JSON{}
+	json := &dao.JSON{}
 	AssertErr(ctx.ReadJSON(json))
 
 	name := json.String("name")
