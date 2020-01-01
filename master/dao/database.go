@@ -32,7 +32,7 @@ func CreateEngine(config *conf.Database) (err error) {
 func createTables() error {
 	tables := []interface{}{
 		&Node{}, &Program{},
-		&Tag{}, &User{},
+		&Tag{}, &User{}, &Notify{},
 	}
 	if err := engine.CreateTables(tables...); err != nil {
 		return err

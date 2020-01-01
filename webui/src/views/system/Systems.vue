@@ -1,9 +1,6 @@
 <template>
     <div class="h-100">
         <v-title title="系统管理" title-class="icon-settings"/>
-        <div class="alert alert-danger">
-            功能暂未实现，一人利用工作之余时间开发，时间紧迫，如果您对本程序的开发有兴趣可联系。 <a href="mailto:ni@renzhen.la">Haiker (ni@renzhen.la)</a>
-        </div>
         <div class="animated fadeIn">
             <b-tabs class="h-100" content-class="h-100">
                 <b-tab active>
@@ -33,13 +30,8 @@
     import vTitle from "../../plugins/vTitle";
     import Email from "./email";
     import Webhook from "./webhook";
-
     export default {
         name: "Tags",
         components: {Webhook, Email, vTitle}
     }
 </script>
-
-<style scoped>
-
-</style>

@@ -84,11 +84,18 @@ func Routers(api server.Api, app *iris.Application) {
 
 		user := admin.Party("/user")
 		{
-
 			user.Get("/list", h.Handler(userCtl.queryUser))
 			user.Post("/add", h.Handler(userCtl.addUser))
 			user.Delete("/{name}", h.Handler(userCtl.deleteUser))
 			user.Post("/passwd", h.Handler(userCtl.modifyPasswd))
+		}
+
+		notify := admin.Party("/notify")
+		{
+			ctl := new(NotifyController)
+			notify.Get("/{name}", h.Handler(ctl.get))
+			notify.Post("/test", h.Handler(ctl.test))
+			notify.Post("", h.Handler(ctl.modity))
 		}
 	}
 }

@@ -34,3 +34,4 @@ var ErrNameEmpty = NewError(iris.StatusBadRequest, "NameIsEmpty", "Name不能为
 var ErrClassEmpty = NewError(iris.StatusBadRequest, "ClassEmpty", "class不能为空")
 var ErrUser = NewError(iris.StatusBadRequest, "UserError", "用户不存在或者密码不正确")
 var ErrNotFound = NewError(iris.StatusBadRequest, "NotFound", "程序未发现")
+var ErrNotFoundConfig = NewError(iris.StatusBadRequest, "NotFoundConfig", "配置未发现")
