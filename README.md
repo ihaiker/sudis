@@ -35,6 +35,9 @@ see [CHANGELOG.md](docs/CHANGELOG.md)
 
 ## TODOLIST
 
-- [ ] Send status change notification. (webhook, email, sms, gNotify). [gNotify](https://github.com/ihaiker/gNotify) is in the design and development stage
-- [ ] The master node supports node management using network sockets.
+- [X] Send status change notification. (webhook, email, sms, gNotify). [gNotify](https://github.com/ihaiker/gNotify) is in the design and development stage
 - [ ] Open API to third-party systems.
+
+## Technical Support
+![QQ支持群](./docs/qq.png)
+![QQ支持群](./docs/dd.png)

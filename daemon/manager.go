@@ -156,7 +156,7 @@ func (self *DaemonManager) ModifyProgram(program *Program) error {
 		p.Freed()
 		program.Id = p.Program.Id
 		p.Program = program
-		self.notifyStatus(p, "", p.State)
+		self.notifyStatus(p, Ready, p.State)
 		return p.initLogger()
 	}
 }

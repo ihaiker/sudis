@@ -48,3 +48,7 @@ Supervister程序使用Go语言实现分布式一站式管理。
 - [ ] 开放API
 
 
+## 技术支持
+![QQ支持群](./docs/qq.png)
+![QQ支持群](./docs/dd.png)
+

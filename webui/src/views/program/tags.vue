@@ -16,7 +16,7 @@
                         <div class="input-group-prepend">
                             <button :class="tag.class" class="btn btn-sm">{{tag.name}}</button>
                         </div>
-                        <c-switch class="switch-lg" color="primary" :checked="hasTag(tag.name)" @change="submitEdit(tag.name,$event)"/>
+                        <c-switch color="primary" :checked="hasTag(tag.name)" @change="submitEdit(tag.name,$event)"/>
                     </div>
                 </div>
             </div>
