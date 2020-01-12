@@ -21,19 +21,14 @@ type ProcessLogger struct {
 
 func NewLogger(loggerFile string) (logger *ProcessLogger, err error) {
 	logger = new(ProcessLogger)
-	writers := make([]io.Writer, 0)
 	if loggerFile != "" {
 		if _, match := appenders.MatchDailyRollingFile(loggerFile); match {
 			if logger.file, err = appenders.NewDailyRollingFileOut(loggerFile); err != nil {
 				return nil, err
-			} else {
-				writers = append(writers, logger.file)
 			}
 		} else {
 			if logger.file, err = files.New(loggerFile).GetWriter(true); err != nil {
 				return
-			} else {
-				writers = append(writers, logger.file)
 			}
 		}
 	}

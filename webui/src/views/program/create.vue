@@ -35,7 +35,17 @@
         </div>
 
         <PCommand title="启动" :daemon="form.daemon === '1'" :command="form.start" @change="form.start = $event"/>
-        <PCommand v-if="form.daemon === '1'" title="停止" :daemon="false" :command="form.stop" @change="form.stop = $event"/>
+        <PCommand v-if="form.daemon === '1'" title="停止" :daemon="false" :command="form.stop"
+                  @change="form.stop = $event"/>
+
+        <div class="form-group">
+            <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">日志文件</span>
+                </div>
+                <input class="form-control" v-model="form.logger" placeholder="日志文件">
+            </div>
+        </div>
 
         <div class="form-group">
             <div class="input-group input-group-sm">
@@ -76,13 +86,15 @@
                 启动预计时间：
             </div>
             <div class="col-2 ml-0 pl-0">
-                <input class="form-control form-control-sm" type="number" v-model="form.startDuration" placeholder="(秒)"/>
+                <input class="form-control form-control-sm" type="number" v-model="form.startDuration"
+                       placeholder="(秒)"/>
             </div>
             <div class="col-auto col-form-label mr-0 pr-0">
                 失败重试次数：
             </div>
             <div class="col-2 ml-0 pl-0">
-                <input class="form-control form-control-sm" type="number" v-model="form.startRetries" placeholder="(次)"/>
+                <input class="form-control form-control-sm" type="number" v-model="form.startRetries"
+                       placeholder="(次)"/>
             </div>
         </div>
 
@@ -136,7 +148,7 @@
                 this.form = {
                     name: "", node: "", daemon: "0",
                     autoStart: false, ignoreStarted: false,
-                    startDuration: 7, startRetries: 3,
+                    startDuration: 3, startRetries: 3, logger: "",
                     envs: [],
                     start: {
                         command: "", args: [],

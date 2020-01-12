@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/user"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -298,7 +299,13 @@ func (p *Process) buildCommand(command *Command) (cmd *kexec.KCommand, err error
 		args[idx] = os.ExpandEnv(arg)
 	}
 
-	cmd = kexec.Command(command.Command, args...)
+	runCmd := command.Command
+	if strings.HasPrefix(runCmd, "./") {
+		abswd, _ := filepath.Abs(p.Program.WorkDir)
+		runCmd = abswd + "/" + runCmd[2:]
+	}
+
+	cmd = kexec.Command(runCmd, args...)
 
 	cmd.Env = os.Environ()
 	if p.Program.Envs != nil && len(p.Program.Envs) > 0 {

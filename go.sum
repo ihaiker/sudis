@@ -91,8 +91,8 @@ github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/ihaiker/gokit v1.5.23 h1:AId/f1UWU/NPh2/eHv/A70Aso5fAamzIEixIhN/exnI=
-github.com/ihaiker/gokit v1.5.23/go.mod h1:8e5fY5w6CD4a6jRF4JzecJZTc+yCX1I7C+DiKquS8sU=
+github.com/ihaiker/gokit v1.5.24 h1:lZGr/B+gHgY8EFY6fdL4mxkXg7tpd2DPtJh4W5q1e90=
+github.com/ihaiker/gokit v1.5.24/go.mod h1:8e5fY5w6CD4a6jRF4JzecJZTc+yCX1I7C+DiKquS8sU=
 github.com/imkira/go-interpol v1.1.0 h1:KIiKr0VSG2CUW1hl1jpiyuzuJeKUUpC8iM1AIE7N1Vk=
 github.com/imkira/go-interpol v1.1.0/go.mod h1:z0h2/2T3XF8kyEPpRgJ3kmNv+C43p+I/CoI+jC3w2iA=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
