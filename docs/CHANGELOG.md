@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.3.1
+
+- fixbug: send on closed channel 问题
 
 ## v2.3.0
 
