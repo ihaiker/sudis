@@ -15,7 +15,7 @@ var logger = logs.GetLogger("server")
 
 type Services interface {
 	Start() error
-	Close() error
+	Stop() error
 }
 
 func StartAt(listener *runtimeKit.SignalListener) error {
@@ -53,7 +53,7 @@ func StartAt(listener *runtimeKit.SignalListener) error {
 	listener.PrependOnClose(func() {
 		logger.Debug("关闭服务")
 		for i := len(services) - 1; i >= 0; i-- {
-			_ = services[i].Close()
+			_ = services[i].Stop()
 		}
 	})
 

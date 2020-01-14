@@ -8,7 +8,7 @@ import (
 
 type masterClient interface {
 	Start() error
-	Close() error
+	Stop() error
 	Notify(request *rpc.Request)
 }
 
@@ -18,7 +18,7 @@ func (self *emptyMasterClient) Start() error {
 	return nil
 }
 
-func (self *emptyMasterClient) Close() error {
+func (self *emptyMasterClient) Stop() error {
 	return nil
 }
 

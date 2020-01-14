@@ -12,6 +12,7 @@ import (
 	"github.com/ihaiker/sudis/daemon"
 	"github.com/ihaiker/sudis/master/server"
 	"github.com/ihaiker/sudis/master/server/eventbus"
+	"strings"
 )
 
 var logger = logs.GetLogger("master")
@@ -23,13 +24,18 @@ type masterTcpServer struct {
 	tails          map[string]daemon.TailLogger
 }
 
+func remoteIp(address string) string {
+	idx := strings.Index(address, ":")
+	return address[0:idx]
+}
+
 func NewMasterTcpServer(address string, onShutdown func(), api *server.ApiWrapper) *masterTcpServer {
 	masterServer := &masterTcpServer{
 		onShutdown: onShutdown,
 		tails:      map[string]daemon.TailLogger{},
 	}
 	masterServer.RpcServer = rpc.NewServer(address, masterServer.onServerMessage, func(channel remoting.Channel) {
-		address := channel.GetRemoteIp()
+		address := remoteIp(channel.GetRemoteAddress())
 		key, has := channel.GetAttr("key")
 		if has {
 			eventbus.Send(eventbus.LostNode(address, key.(string)))
@@ -42,7 +48,7 @@ func NewMasterTcpServer(address string, onShutdown func(), api *server.ApiWrappe
 
 func (self *masterTcpServer) authServer(channel remoting.Channel, request *rpc.Request) *rpc.Response {
 	if request.URL == "auth" {
-		address := channel.GetRemoteIp()
+		address := remoteIp(channel.GetRemoteAddress())
 		timestamp, exits := request.GetHeader("timestamp")
 		key, has := request.GetHeader("key")
 		if exits && has {
@@ -78,9 +84,10 @@ func (self *masterTcpServer) onServerMessage(channel remoting.Channel, request *
 		return resp
 	}
 
+	address := remoteIp(channel.GetRemoteAddress())
 	switch request.URL {
 	case "shutdown": //只能本地执行关闭
-		if channel.GetRemoteIp() == "127.0.0.1" {
+		if address == "127.0.0.1" {
 			eventbus.Send(eventbus.Shutdown())
 			self.onShutdown()
 			return rpc.OK(channel, request)
@@ -92,11 +99,8 @@ func (self *masterTcpServer) onServerMessage(channel remoting.Channel, request *
 		_ = json.Unmarshal(request.Body, &args)
 		key, _ := channel.GetAttr("key")
 		event := &eventbus.ProgramStatusEvent{
-			Ip:        channel.GetRemoteIp(),
-			Key:       key.(string),
-			Name:      args[0],
-			OldStatus: args[1],
-			NewStatus: args[2],
+			Ip: address, Key: key.(string),
+			Name: args[0], OldStatus: args[1], NewStatus: args[2],
 		}
 		eventbus.Send(eventbus.ProgramStatus(event))
 		return rpc.OK(channel, request)
@@ -117,5 +121,5 @@ func (self *masterTcpServer) Start() (err error) {
 
 func (self *masterTcpServer) Stop() error {
 	logger.Info("master tcp closed")
-	return self.RpcServer.Close()
+	return self.RpcServer.Stop()
 }

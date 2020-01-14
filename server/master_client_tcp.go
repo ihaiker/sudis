@@ -28,17 +28,17 @@ func newTcpMasterClient(address, securityToken string, dm *daemon.DaemonManager)
 		if client.started {
 			go func() {
 				logger.Info("与主控节点断开，重新连接")
-				_ = commons.Safe(client.Close)
+				_ = commons.Safe(client.Stop)
 				client.started = true //上面执行了close，这里会被改写为false
 
 				for client.started {
+					time.Sleep(time.Second * 5)
 					logger.Debug("尝试连接主控节点：", address)
 					if err := client.Start(); err == nil {
 						logger.Info("重连与TCP主控节点连接成功：", address)
 						return
 					} else {
 						logger.Warn("重连主控节点异常：", err)
-						time.Sleep(time.Second * 5)
 					}
 				}
 			}()
@@ -71,7 +71,7 @@ func (self *tcpMasterClient) Start() (err error) {
 	return nil
 }
 
-func (self *tcpMasterClient) Close() error {
+func (self *tcpMasterClient) Stop() error {
 	logger.Info("开始断开TCP主控节点连接")
 	self.started = false
 	return self.client.Close()

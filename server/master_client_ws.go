@@ -16,7 +16,7 @@ func (self *wsMasterClient) Start() error {
 	return nil
 }
 
-func (self *wsMasterClient) Close() error {
+func (self *wsMasterClient) Stop() error {
 	return nil
 }
 

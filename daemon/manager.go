@@ -69,12 +69,7 @@ func (self *DaemonManager) Start() error {
 	return nil
 }
 
-func (self *DaemonManager) Close() error {
-	self.Stop()
-	return nil
-}
-
-func (self *DaemonManager) Stop() {
+func (self *DaemonManager) Stop() error {
 	for _, process := range self.process {
 		if process.GetStatus().IsRunning() {
 			if err := process.stopCommand(); err != nil {
@@ -84,6 +79,7 @@ func (self *DaemonManager) Stop() {
 		process.Freed()
 	}
 	logger.Info("stop sudis daemon manager")
+	return nil
 }
 
 func (self *DaemonManager) AddProgram(program *Program) error {
