@@ -91,9 +91,8 @@ func init() {
 
 func main() {
 	defer logs.CloseAll()
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	runtime.GOMAXPROCS(runtime.NumCPU())
-
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

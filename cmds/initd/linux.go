@@ -22,6 +22,7 @@ Description=The sudis %s endpoint.
 After=network.target remote-fs.target nss-lookup.target
 
 [Service]
+ExecStartPre=rm -f /etc/sudis/sudis.sock
 ExecStart=/usr/local/bin/sudis %s
 ExecStop=/usr/local/bin/sudis %s shutdown
 KillSignal=SIGQUIT

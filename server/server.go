@@ -8,6 +8,8 @@ import (
 	runtimeKit "github.com/ihaiker/gokit/runtime"
 	"github.com/ihaiker/sudis/conf"
 	"github.com/ihaiker/sudis/daemon"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -18,7 +20,14 @@ type Services interface {
 	Stop() error
 }
 
+func removeSock() {
+	if strings.HasSuffix(conf.Config.Server.Sock, ".sock") {
+		_ = os.Remove(conf.Config.Server.Sock)
+	}
+}
+
 func StartAt(listener *runtimeKit.SignalListener) error {
+	removeSock()
 	dm := daemon.NewDaemonManager(conf.Config.Server.Dir)
 	client := newMasterClient(conf.Config.Server.Master, conf.Config.Server.SecurityToken, dm)
 
