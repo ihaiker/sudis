@@ -23,7 +23,7 @@ build: bindata
 	go mod download
 	go build -tags bindata -ldflags "${debug} ${param}" -o ${binout}
 
-bindata: webui
+bindata:
 	go generate generator.go
 
 webui:
