@@ -23,7 +23,7 @@ type Database struct {
 
 type Master struct {
 	//master绑定端口
-	Band string `json:"band" yaml:"band" toml:"band"`
+	Bind string `json:"bind" yaml:"bind" toml:"bind"`
 
 	//HTTP管理接口
 	Http string `json:"http" yaml:"http" toml:"http"`
