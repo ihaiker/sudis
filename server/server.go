@@ -22,7 +22,7 @@ type Services interface {
 
 func removeSock() {
 	if strings.HasSuffix(conf.Config.Server.Sock, ".sock") {
-		_ = os.Remove(conf.Config.Server.Sock)
+		_ = os.Remove(conf.Config.Server.Sock[len("unix:/"):])
 	}
 }
 
