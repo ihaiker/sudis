@@ -83,7 +83,7 @@
         name: "ProgramInfo",
         components: {CPU, RAM, VTitle},
         data: () => ({
-            show: true,
+            _timer: null,
             program: null,
             cpuData: [],
             ramData: [],
@@ -94,9 +94,6 @@
                 this.cpuData.push({name: "", value: [i, 0]});
                 this.ramData.push({name: "", value: [i, 0]});
             }
-        },
-        beforeDestroy() {
-            this.show = false;
         },
         methods: {
             queryDetail() {
@@ -122,13 +119,12 @@
                         self.$toast.error(e.error, e.message);
                     }
                 }).finally(() => {
-                    if (self.show) {
-                        setTimeout(() => {
-                            self.queryDetail()
-                        }, 1000)
-                    }
+                    self._timer = setTimeout(self.queryDetail, 1000)
                 });
             }
+        },
+        beforeDestroy() {
+            this._timer && clearTimeout(this._timer);
         }
     }
 </script>
