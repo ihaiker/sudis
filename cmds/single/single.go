@@ -16,11 +16,11 @@ var Cmd = &cobra.Command{
 		if conf.Config.Server.Key == "" {
 			conf.Config.Server.Key = "single"
 		}
-		idx := strings.Index(conf.Config.Master.Band, ":")
+		idx := strings.Index(conf.Config.Master.Bind, ":")
 		if idx == 0 {
-			conf.Config.Server.Master = "tcp://127.0.0.1" + conf.Config.Master.Band
+			conf.Config.Server.Master = "tcp://127.0.0.1" + conf.Config.Master.Bind
 		} else {
-			conf.Config.Server.Master = "tcp://" + conf.Config.Master.Band
+			conf.Config.Server.Master = "tcp://" + conf.Config.Master.Bind
 		}
 		conf.Config.Server.SecurityToken = conf.Config.Master.SecurityToken
 

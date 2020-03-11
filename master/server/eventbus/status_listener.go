@@ -75,9 +75,10 @@ func (self *CommandListener) programStatus(event *ProgramStatusEvent) {
 		if err := dao.ProgramDao.Remove(event.Key, event.Name); err != nil {
 			logger.Warn("删除程序异常：node=", event.Key, ",name=", event.Name, ",error=", err)
 		}
-	} else {
-		p, _ := self.Api.Get(event.Key, event.Name)
+	} else if p, err := self.Api.Get(event.Key, event.Name); err == nil {
 		self.addOrModifyProgram(event.Key, p.Program, daemon.FSMState(event.NewStatus))
+	} else {
+		logger.Warnf("new status: %s %s %s", event.Key, event.Name, event.NewStatus)
 	}
 }
 

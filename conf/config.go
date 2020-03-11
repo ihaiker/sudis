@@ -56,7 +56,7 @@ func init() {
 			Sock: "unix://etc/sudis/sudis.sock",
 		},
 		Master: &Master{
-			Band:          "127.0.0.1:5983",
+			Bind:          "127.0.0.1:5983",
 			Http:          "127.0.0.1:5984",
 			EnableWS:      false,
 			SecurityToken: "4E4AD35C6C0BEB20DC343A1E8F7E32D4",

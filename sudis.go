@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	VERSION        string = "v2.0.0"
+	VERSION        string = "v3.0.0"
 	BUILD_TIME     string = "2012-12-12 12:12:12"
 	GITLOG_VERSION string = "0000"
 )

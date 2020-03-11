@@ -31,7 +31,7 @@ func authRequest() *rpc.Request {
 var shutdownCmd = &cobra.Command{
 	Use: "shutdown", Short: "关闭master", Long: "关闭master人服务",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := rpc.NewClient(conf.Config.Master.Band, rpc.OK, nil)
+		client := rpc.NewClient(conf.Config.Master.Bind, rpc.OK, nil)
 
 		if err := client.Start(); err != nil {
 			return err

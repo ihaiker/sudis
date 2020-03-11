@@ -16,7 +16,7 @@ import (
 var logger = logs.GetLogger("master")
 
 func StartAt(wait *runtimeKit.SignalListener) error {
-	if conf.Config.Master.Band == "" && !conf.Config.Master.EnableWS {
+	if conf.Config.Master.Bind == "" && !conf.Config.Master.EnableWS {
 		return errors.New("master.band or master enableWs mast config one")
 	}
 
@@ -30,8 +30,8 @@ func StartAt(wait *runtimeKit.SignalListener) error {
 
 	var servers []server.MasterServer
 	api := server.NewApiWrapper()
-	if conf.Config.Master.Band != "" {
-		tcpServer := tcp.NewMasterTcpServer(conf.Config.Master.Band, func() {
+	if conf.Config.Master.Bind != "" {
+		tcpServer := tcp.NewMasterTcpServer(conf.Config.Master.Bind, func() {
 			logger.Debug("程序接收关闭命令")
 			wait.Stop()
 		}, api)
