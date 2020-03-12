@@ -1,10 +1,9 @@
 package daemon
 
 import (
-	"github.com/ihaiker/gokit/commons"
 	"github.com/ihaiker/gokit/concurrent/atomic"
-	"github.com/ihaiker/gokit/files"
-	"github.com/ihaiker/gokit/logs/appenders"
+	"github.com/ihaiker/gokit/errors"
+	"github.com/ihaiker/gokit/logs"
 	"io"
 )
 
@@ -22,14 +21,8 @@ type ProcessLogger struct {
 func NewLogger(loggerFile string) (logger *ProcessLogger, err error) {
 	logger = new(ProcessLogger)
 	if loggerFile != "" {
-		if _, match := appenders.MatchDailyRollingFile(loggerFile); match {
-			if logger.file, err = appenders.NewDailyRollingFileOut(loggerFile); err != nil {
-				return nil, err
-			}
-		} else {
-			if logger.file, err = files.New(loggerFile).GetWriter(true); err != nil {
-				return
-			}
+		if logger.file, err = logs.NewDailyRolling(loggerFile); err != nil {
+			return nil, err
 		}
 	}
 	logger.lineIdx = atomic.NewAtomicInt(0)
@@ -38,8 +31,8 @@ func NewLogger(loggerFile string) (logger *ProcessLogger, err error) {
 	return
 }
 
-func (self *ProcessLogger) Reg(id string, tail TailLogger, lines int) {
-	logger.Debug("reg logger ", id)
+func (self *ProcessLogger) Tail(id string, tail TailLogger, lines int) {
+	logger.Debug("logger tail : ", id)
 	self.tails[id] = tail
 	if lines > LOGGER_LINES_NUM {
 		lines = LOGGER_LINES_NUM
@@ -58,7 +51,8 @@ func (self *ProcessLogger) Reg(id string, tail TailLogger, lines int) {
 	}
 }
 
-func (self *ProcessLogger) UnReg(id string) {
+func (self *ProcessLogger) CtrlC(id string) {
+	logger.Debug("stop logger tail: ", id)
 	delete(self.tails, id)
 }
 
@@ -66,7 +60,7 @@ func (self *ProcessLogger) Write(p []byte) (int, error) {
 	line := string(p)
 	self.lines[self.lineIdx.GetAndIncrement(1)%LOGGER_LINES_NUM] = line
 	for id, tail := range self.tails {
-		commons.SafeExec(func() {
+		errors.Try(func() {
 			tail(id, line)
 		})
 	}
@@ -78,7 +72,9 @@ func (self *ProcessLogger) Write(p []byte) (int, error) {
 
 func (self *ProcessLogger) Close() error {
 	if self.file != nil {
-		return (self.file.(io.Closer)).Close()
+		if closer, match := self.file.(io.Closer); match {
+			return closer.Close()
+		}
 	}
 	return nil
 }

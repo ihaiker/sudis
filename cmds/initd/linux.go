@@ -2,29 +2,26 @@ package initd
 
 import (
 	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/blang/semver"
-	"github.com/ihaiker/gokit/commons"
+	"github.com/ihaiker/gokit/errors"
 	"github.com/ihaiker/gokit/files"
-	"github.com/ihaiker/sudis/conf"
-	"github.com/ihaiker/sudis/master/dao"
+	"github.com/ihaiker/sudis/libs/config"
+	"gopkg.in/yaml.v2"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
-const initConfigFile = `
+const serviceContent = `
 [Unit]
-Description=The sudis %s endpoint.
+Description=The sudis endpoint.
 After=network.target remote-fs.target nss-lookup.target
 
 [Service]
-ExecStartPre=rm -f /etc/sudis/sudis.sock
-ExecStart=/usr/local/bin/sudis %s
-ExecStop=/usr/local/bin/sudis %s shutdown
+ExecStart=/usr/local/bin/sudis
+ExecStop=/bin/kill -2 $MAINPID
 KillSignal=SIGQUIT
 TimeoutStopSec=15
 KillMode=process
@@ -35,7 +32,7 @@ WantedBy=multi-user.target
 `
 
 func gt26() bool {
-	defer func() { _ = recover() }()
+	defer errors.Catch()
 
 	v26 := semver.MustParse("2.6.0")
 	if err, version := runs("uname", "-r"); err == nil {
@@ -85,99 +82,44 @@ func echo(content, path string) error {
 	return nil
 }
 
-func writeConfig(endpoint string, confDir string) error {
-	confDir = strings.ReplaceAll(confDir, files.ListSeparator, "")
-
-	conf.Config.Server.Dir = confDir + "/programs"
-	conf.Config.Server.Sock = "unix:/" + confDir + "/sudis.sock"
-	conf.Config.Master.Database.Url = confDir + "/sudis.db"
-
-	if endpoint == "master" {
-
-	} else if endpoint == "server" {
-
-		conf.Config.Server.Key = commons.GetHost([]string{"docker0"}, []string{})
-
-	} else if endpoint == "single" {
-
-		idx := strings.Index(conf.Config.Master.Bind, ":")
-		if idx == 0 {
-			conf.Config.Server.Master = "tcp://127.0.0.1" + conf.Config.Master.Bind
-		} else {
-			conf.Config.Server.Master = "tcp://" + conf.Config.Master.Bind
-		}
-		conf.Config.Server.SecurityToken = conf.Config.Master.SecurityToken
-
-	}
-
-	cfg, _ := json.MarshalIndent(conf.Config, "", "\t")
-	if err := echo(string(cfg), confDir+"/sudis.json"); err != nil {
-		return err
-	}
-
-	return nil
+func writeConfig(confDir string) error {
+	configFile := filepath.Join(confDir, "sudis.yaml")
+	cfg, _ := yaml.Marshal(config.Config)
+	return echo(string(cfg), configFile)
 }
 
-func linuxGt26(endpoint string) error {
+func linuxGt26() (err error) {
+	defer errors.Catch(func(re error) { err = re })
 
-	if err := mkdir("/etc/sudis/programs"); err != nil {
-		return err
-	}
+	errors.Assert(mkdir("/etc/sudis/programs"))
+	errors.Assert(writeConfig("/etc/sudis"))
 
-	if err := writeConfig(endpoint, "/etc/sudis"); err != nil {
-		return err
-	}
+	fileName := "/lib/systemd/system/sudis.service"
+	errors.Assert(echo(serviceContent, fileName))
 
-	fileName := ""
-	content := ""
-	if endpoint == "master" {
-		fileName = "sudis-master.service"
-		content = fmt.Sprintf(initConfigFile, endpoint, endpoint, endpoint)
-	} else if endpoint == "server" {
-		fileName = "sudis-server.service"
-		content = fmt.Sprintf(initConfigFile, endpoint, endpoint, "console")
-	} else if endpoint == "single" {
-		fileName = "sudis.service"
-		content = fmt.Sprintf(initConfigFile, endpoint, "", "")
-	}
+	err, _ = runs("chmod", "+x", fileName)
+	errors.Assert(err)
 
-	if err := echo(content, "/lib/systemd/system/"+fileName); err != nil {
-		return err
-	}
-
-	if err, out := runs("chmod", "+x", "/lib/systemd/system/"+fileName); err != nil {
-		return err
-	} else {
-		fmt.Println(out)
-	}
-
-	if endpoint == "master" || endpoint == "single" {
-		if err := dao.InitDatabase(conf.Config.Master.Database); err != nil {
-			return err
-		}
-	}
-
-	self, _ := filepath.Abs(os.Args[0])
-	toUser := "/usr/local/bin/sudis"
-	if self != toUser {
-		_, _ = runs("rm", "-f", toUser)
-		if err, _ := runs("cp", "-r", self, toUser); err != nil {
-			return err
-		}
+	from, _ := filepath.Abs(os.Args[0])
+	to := "/usr/local/bin/sudis"
+	if from != to {
+		_, _ = runs("rm", "-f", to)
+		err, _ = runs("cp", "-r", from, to)
+		errors.Assert(err)
+		err, _ = runs("chmod", "+x", to)
+		errors.Assert(err)
 	}
 
 	//启动开机启动
-	if err, out := runs("systemctl", "enable", fileName); err != nil {
-		return err
-	} else {
-		fmt.Println(out)
-	}
-	return nil
+	err, out := runs("systemctl", "enable", fileName)
+	errors.Assert(err)
+	fmt.Println(out)
+	return
 }
 
-func linuxAutoStart(endpoint string) error {
+func linuxAutoStart() error {
 	if gt26() {
-		return linuxGt26(endpoint)
+		return linuxGt26()
 	} else {
 		return errors.New("not support")
 	}

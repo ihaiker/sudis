@@ -67,21 +67,34 @@
         </div>
 
         <div class="alert alert-info mt-2">通知模板</div>
-        <attrs @change="content = content + $event"/>
         <textarea class="form-control mt-3" style="min-height: 300px;" v-model="content"/>
     </div>
 </template>
 
 <script>
-    import Attrs from "./attrs";
-
     export default {
         name: "email",
-        components: {Attrs},
         data: () => ({
             address: "", port: 465,
             name: "", passwd: "", to: "",
-            content: `节点：{{.Node}}，程序：{{.Name}}，状态更改：{{.State}}`,
+            content: `
+{{ if eq .Type "process" }}
+    <h1>程序通知：</h1>
+    <table>
+        <tr>
+            <th>程序节点</th><td>{{.Process.Node}}</td>
+            <th>名称</th><td>{{.Process.Name}}</td>
+        </tr>
+        <tr>
+            <th>From:</th><td>{{.FromStatus}}</td>
+            <th>To:</th><td>{{.ToStatus}}</td>
+        </tr>
+    </table>
+{{else}}
+    <h1>节点通知：</h1>
+    {{.Node}} 状态变更为：{{.Status}}
+{{end}}
+`,
         }),
         mounted() {
             this.getConfig();
@@ -98,13 +111,13 @@
                     self.content = config.content;
                     self.to = config.to;
                 }).catch(e => {
-                    self.$toast.error(e.message);
+                    self.$toast.error("email" + e.message);
                 })
             },
             testConfig() {
                 this.execConfig("/admin/notify/test");
             },
-            setConfig(){
+            setConfig() {
                 this.execConfig("/admin/notify");
             },
             execConfig(uri) {
@@ -117,7 +130,7 @@
                 self.$axios.post(uri, {name: "email", config: JSON.stringify(config)}).then(res => {
                     self.$toast.success('成功！');
                 }).catch(e => {
-                    self.$toast.error(e.message);
+                    self.$toast.error("email" + e.message);
                 });
             }
         }

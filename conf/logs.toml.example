@@ -1,4 +1,0 @@
-[root]
-level = "info"
-appender = "file://var/log/sudis.log.{20060102}"
-pattern = "[%L] %a %d{2006-01-02 15:04:05} %F:%l %m"

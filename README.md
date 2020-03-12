@@ -1,12 +1,13 @@
 # Sudis
 
-![sudis logo](webui/public/logo.png)
+![sudis logo](webui/src/assets/images/logo.png)
 
 Sudis !! Distributed supervisor process control system.
 
-[中文说明](README_ZH.md) | English
+[中文说明](README_ZH.md) | English  
 
-Source code: [Github](https://github.com/ihaiker/sudis) | [Gitee](https://gitee.com/ihaiker/sudis)
+![sudis.svg](./docs/views/sudis.svg)
+
 
 ![dashboard.png](./docs/views/dashboard.png)
 ![nodes.png](./docs/views/nodes.png)
@@ -36,7 +37,6 @@ see [CHANGELOG.md](docs/CHANGELOG.md)
 ## TODOLIST
 
 - [X] Send status change notification. (webhook, email, sms, gNotify). [gNotify](https://github.com/ihaiker/gNotify) is in the design and development stage
-- [ ] Open API to third-party systems.
 
 ## Technical Support
 ![QQ支持群](./docs/qq.png)

@@ -1,0 +1,29 @@
+{
+	"type": "process",
+	"process": {
+		"pid": 44593,
+		"status": "running",
+		"id": 2,
+		"node": "sudis",
+		"daemon": "0",
+		"name": "ping",
+		"tags": [],
+		"workDir": "/Users/haiker",
+		"user": "haiker",
+		"start": {
+			"command": "ping",
+			"args": ["172.16.100.2"]
+		},
+		"stop": {},
+		"startDuration": 3,
+		"startRetries": 3,
+		"stopSign": 3,
+		"stopTimeout": 7,
+		"addTime": "2020-03-24T12:47:41.025598+08:00",
+		"updateTime": "2020-03-24T12:47:41.025598+08:00",
+		"cpu": 0,
+		"rss": 4187
+	},
+	"fromStatus": "starting",
+	"toStatus": "running"
+}

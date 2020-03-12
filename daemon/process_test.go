@@ -12,7 +12,7 @@ func init() {
 
 func TestForegroundProcess(t *testing.T) {
 	program := NewProgram()
-	program.Name = "pingbaidu"
+	program.Name = "ping"
 	program.Start = &Command{
 		Command: "ping",
 		Args: []string{
@@ -22,8 +22,8 @@ func TestForegroundProcess(t *testing.T) {
 	program.Logger = "/tmp/sudis.log"
 	process := NewProcess(program)
 
-	process.statusListener = func(pro *Process, oldState, newState FSMState) {
-		logger.Debugf("from %s to %s", oldState, newState)
+	process.statusListener = func(pro *Process, fromStatus, toStatus FSMState) {
+		logger.Debugf("from %s to %s", fromStatus, toStatus)
 	}
 
 	if err := process.startCommand(nil); err != nil {
@@ -32,7 +32,7 @@ func TestForegroundProcess(t *testing.T) {
 
 	<-time.After(time.Second * 10)
 
-	if err := process.stopCommand(false); err != nil {
+	if err := process.stopCommand(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -65,7 +65,7 @@ func TestDaemonProcess(t *testing.T) {
 
 	<-time.After(time.Hour)
 
-	if err := process.stopCommand(false); err != nil {
+	if err := process.stopCommand(); err != nil {
 		t.Fatal(err)
 	}
 

@@ -71,7 +71,7 @@
                     </div>
                     <div class="brand-card-body">
                         <div>
-                            <div class="text-value">{{volumns.info.CPU}}</div>
+                            <div class="text-value">{{volumns.info.CPU}}%</div>
                             <div class="text-uppercase text-muted">CPU</div>
                         </div>
                         <div>

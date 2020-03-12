@@ -1,13 +1,19 @@
 package console
 
 import (
-	"encoding/json"
-	"github.com/ihaiker/gokit/remoting/rpc"
+	"fmt"
 	runtimeKit "github.com/ihaiker/gokit/runtime"
+	"github.com/ihaiker/sudis/libs/config"
 	uuid "github.com/iris-contrib/go.uuid"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"strconv"
-	"time"
+	"strings"
+)
+
+const (
+	SUBSCRIBE   = "true"
+	UNSUBSCRIBE = "false"
 )
 
 var tailCmd = &cobra.Command{
@@ -15,27 +21,25 @@ var tailCmd = &cobra.Command{
 	Example: "sudis [console] tail[f] [-n <num>] <programName,...>",
 	PreRunE: preRune, PostRun: runPost,
 	RunE: func(cmd *cobra.Command, args []string) error {
+
 		name := args[0]
-		num, err := cmd.PersistentFlags().GetInt("num")
-		if err != nil {
-			return err
-		}
-		id, _ := uuid.NewV4()
-		request := new(rpc.Request)
-		request.URL = "tail"
-		request.Header("num", strconv.Itoa(num))
-		request.Body, _ = json.Marshal([]string{name, "true", id.String()})
-		if response := client.Send(request, time.Second*5); response.Error != nil {
-			return response.Error
+		subscribeId, _ := uuid.NewV4() //channel id
+		subId := strings.ReplaceAll(subscribeId.String(), "-", "")
+
+		//订阅成功就可以，在启动客户端连接的试试已经做好了日志的打印
+		request := makeRequest("tail", name, SUBSCRIBE, subId)
+		request.Header("num", strconv.Itoa(viper.GetInt("num")))
+		if response := sendRequest(request); response.Error != nil {
+			fmt.Println(response.Error)
+			return nil
 		}
 
 		kill := runtimeKit.NewListener()
-		return kill.WaitWithTimeout(time.Second*7, func() {
-			request := new(rpc.Request)
-			request.URL = "tail"
-			request.Body, _ = json.Marshal([]string{name, "false", id.String()})
-			client.Send(request, time.Second*5)
+		kill.AddStop(func() error {
+			resp := sendRequest(makeRequest("tail", name, UNSUBSCRIBE, subId))
+			return resp.Error
 		})
+		return kill.WaitTimeout(config.Config.MaxWaitTimeout)
 	},
 }
 

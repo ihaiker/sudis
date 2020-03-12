@@ -47,7 +47,7 @@
                             <i class="fa fa-file-text"/>
                         </router-link>
                     </td>
-                    <td>{{p.time}}</td>
+                    <td>{{p.updateTime.substring(0,19).replace("T"," ")}}</td>
                 </tr>
                 </tbody>
             </table>

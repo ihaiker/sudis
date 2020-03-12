@@ -1,6 +1,6 @@
 module.exports = {
-    lintOnSave: false,
-    runtimeCompiler: true,
+    outputDir: "dist", assetsDir: "static",
+    lintOnSave: false, runtimeCompiler: true,
     devServer: {
         disableHostCheck: true,
     }

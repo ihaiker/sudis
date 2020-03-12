@@ -2,52 +2,43 @@ package console
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/ihaiker/gokit/files"
-	"github.com/ihaiker/gokit/remoting/rpc"
 	"github.com/ihaiker/sudis/daemon"
+	"github.com/ihaiker/sudis/libs/errors"
 	"github.com/spf13/cobra"
-	"strings"
-	"time"
+	"io/ioutil"
+	"os"
 )
 
 var modifyCmd = &cobra.Command{
-	Use: "modify", Short: "修改程序", Long: "修改被管理的程序", Args: cobra.ExactValidArgs(2),
-	Example: "sudis [console] modify <programName> <@jsonfile|json>",
+	Use: "modify", Short: "修改程序", Long: "修改被管理的程序", Args: cobra.RangeArgs(1, 2),
+	Example: `sudis [console] modify <programName> [jsonfile]
+cat jsonfile | sudis [console] modify <programName>`,
 	PreRunE: preRune, PostRun: runPost,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		request := new(rpc.Request)
-		request.URL = "modify"
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		request := makeRequest("modify")
 
-		name := args[0]
-		file := args[1]
-		content := ""
-		if strings.HasPrefix(file, "@") {
-			f := files.New(file[1:])
-			if !f.IsFile() {
-				return errors.New("the file not found :" + f.GetPath())
+		var content []byte
+		if len(args) == 2 {
+			if content, err = files.New(args[1]).ToBytes(); err != nil {
+				return
 			}
-			if fileContent, err := f.ToString(); err != nil {
-				return err
-			} else {
-				content = fileContent
-			}
-		} else {
-			content = file
+		} else if content, err = ioutil.ReadAll(os.Stdin); err != nil {
+			return
 		}
+
+		if len(content) == 0 {
+			return errors.New("no content")
+		}
+
 		program := daemon.NewProgram()
-		if err := json.Unmarshal([]byte(content), program); err != nil {
-			return err
+		program.Name = args[0]
+		if err = json.Unmarshal(content, program); err != nil {
+			return
 		}
-		program.Name = name
 		request.Body, _ = json.Marshal(program)
 
-		if resp := client.Send(request, time.Second*5); resp.Error != nil {
-			fmt.Println(resp.Error)
-		} else {
-			fmt.Println(string(resp.Body))
-		}
+		sendRequest(request)
 		return nil
 	},
 }

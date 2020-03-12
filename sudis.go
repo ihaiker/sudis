@@ -1,98 +1,108 @@
 package main
 
 import (
-	"github.com/ihaiker/gokit/config"
+	"fmt"
+	"github.com/ihaiker/gokit/errors"
+	"github.com/ihaiker/gokit/files"
 	"github.com/ihaiker/gokit/logs"
 	"github.com/ihaiker/sudis/cmds/console"
 	"github.com/ihaiker/sudis/cmds/initd"
-	"github.com/ihaiker/sudis/cmds/master"
-	"github.com/ihaiker/sudis/cmds/server"
-	"github.com/ihaiker/sudis/cmds/single"
-	"github.com/ihaiker/sudis/conf"
-	"github.com/jinzhu/configor"
+	"github.com/ihaiker/sudis/cmds/node"
+	"github.com/ihaiker/sudis/libs/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 )
 
 var (
-	VERSION        string = "v3.0.0"
-	BUILD_TIME     string = "2012-12-12 12:12:12"
-	GITLOG_VERSION string = "0000"
+	VERSION        = "v3.0.0"
+	BUILD_TIME     = "2012-12-12 12:12:12"
+	GITLOG_VERSION = "0000"
 )
 
 var rootCmd = &cobra.Command{
-	Use:     filepath.Base(os.Args[0]),
-	Long:    "sudis, 一个分布式进程控制程序。\n\tBuild: " + BUILD_TIME + ", Go: " + runtime.Version() + ", GitLog: " + GITLOG_VERSION,
-	Version: VERSION + "",
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		//initd不设置config
-		if cmd.Name() == initd.Cmd.Name() {
-			return nil
-		}
-
-		if debug, err := cmd.Root().PersistentFlags().GetBool("debug"); err != nil {
-			return err
-		} else if debug {
-			logs.SetDebugMode(debug)
-		} else if level, err := cmd.Root().PersistentFlags().GetString("level"); err != nil {
-			return err
-		} else {
-			logs.SetLevel(logs.FromString(level))
-		}
-
-		//配置文件
-		confPath, err := cmd.Root().PersistentFlags().GetString("conf")
-		if err != nil {
-			return err
-		}
-
-		reg := config.NewConfigRegister("sudis", "")
-		if confPath != "" {
-			reg.AddPath(confPath)
-		}
-		reg.With(&configor.Config{
-			ENVPrefix:  "SUDIS",
-			AutoReload: true, AutoReloadInterval: time.Second * 5,
-			AutoReloadCallback: func(config interface{}) {
-				logs.Info("配置文件自动重新加载")
-				conf.Config = config.(*conf.SudisConfig)
-			},
-		})
-		err = reg.Marshal(conf.Config)
-		if err != nil {
-			return err
-		}
-		conf.Config.Version = VERSION
-		conf.Config.Server.Dir = os.ExpandEnv(conf.Config.Server.Dir)
-		conf.Config.Server.Sock = os.ExpandEnv(conf.Config.Server.Sock)
-		conf.Config.Master.Database.Url = os.ExpandEnv(conf.Config.Master.Database.Url)
-		return nil
-	},
+	Use: filepath.Base(os.Args[0]), Version: fmt.Sprintf(" %s ", VERSION),
+	Long: fmt.Sprintf(`SUDIS V3, 一个分布式进程控制程序。
+Build: %s, Go: %s, GitLog: %s`, BUILD_TIME, runtime.Version(), GITLOG_VERSION),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return single.Cmd.RunE(cmd, args)
+		return node.Start()
 	},
 }
 
 func init() {
-	cobra.OnInitialize(func() {})
-	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Debug模式")
-	rootCmd.PersistentFlags().StringP("level", "l", "info", "日志级别")
+	cobra.OnInitialize(func() {
+		viper.SetEnvPrefix("SUDIS")
+
+		dataPath := viper.GetString("data-path")
+		if conf := viper.GetString("conf"); conf != "" {
+			viper.SetConfigFile(conf)
+		} else if dataPath != "" && files.IsExistFile(filepath.Join(dataPath, "sudis.conf")) {
+			viper.SetConfigFile(filepath.Join(dataPath, "sudis.conf"))
+		} else {
+			viper.SetConfigName("sudis")
+			viper.SetConfigType("yaml")
+			for _, configPath := range []string{
+				"etc", "conf", "etc/sudis",
+				"/etc/sudis", os.ExpandEnv("$HOME/.sudis"),
+			} {
+				viper.AddConfigPath(configPath)
+			}
+		}
+		viper.AutomaticEnv()
+		if err := viper.ReadInConfig(); err == nil {
+			fmt.Println("Using config file:", viper.ConfigFileUsed())
+		}
+		if err := viper.Unmarshal(config.Config); err != nil {
+			fmt.Println("unmarshal error", err)
+		}
+
+		if config.Config.DataPath == "" {
+			if useConfig := viper.ConfigFileUsed(); useConfig != "" {
+				config.Config.DataPath = filepath.Dir(useConfig)
+			} else {
+				config.Config.DataPath = "$HOME/.sudis"
+			}
+		}
+		config.Config.DataPath = os.ExpandEnv(config.Config.DataPath)
+	})
+
 	rootCmd.PersistentFlags().StringP("conf", "f", "", "配置文件")
-	rootCmd.AddCommand(server.Cmd)
-	rootCmd.AddCommand(master.Cmd)
-	rootCmd.AddCommand(console.Cmds...)
-	rootCmd.AddCommand(single.Cmd)
+	rootCmd.PersistentFlags().BoolP("debug", "d", config.Config.Debug, "Debug模式")
+	rootCmd.PersistentFlags().StringP("key", "", config.Config.Key, "节点唯一ID")
+	rootCmd.PersistentFlags().StringP("address", "", config.Config.Address, "API绑定地址")
+	rootCmd.PersistentFlags().BoolP("disable-webui", "", config.Config.DisableWebUI, "禁用webui")
+
+	rootCmd.PersistentFlags().StringP("data-path", "", config.Config.DataPath, "数据存储位置 (default: $HOME/.sudis)")
+	rootCmd.PersistentFlags().StringP("database.type", "", config.Config.Database.Type, "数据存储方式")
+	rootCmd.PersistentFlags().StringP("database.url", "", config.Config.Database.Url, "数据存储地址")
+
+	rootCmd.PersistentFlags().StringP("salt", "", config.Config.Salt, "安全加密盐值")
+	rootCmd.PersistentFlags().String("manager", config.Config.Manager, "管理托管绑定地址")
+	rootCmd.PersistentFlags().StringSliceP("join", "", config.Config.Join, "托管连接地址")
+	rootCmd.PersistentFlags().DurationP("maxwait", "", config.Config.MaxWaitTimeout, "程序关闭最大等待时间")
+	rootCmd.PersistentFlags().BoolP("notify-sync", "", false, "事件通知是否同步通知。")
+
+	rootCmd.AddCommand(console.ConsoleCommands)
+	rootCmd.AddCommand(console.Commands...)
 	rootCmd.AddCommand(initd.Cmd)
+	_ = viper.BindPFlags(rootCmd.PersistentFlags())
+
+	errors.StackFilter = func(frame runtime.Frame) bool {
+		return strings.HasPrefix(frame.Function, "github.com/ihaiker/sudis")
+	}
 }
 
 func main() {
+	logs.Open("sudis")
 	defer logs.CloseAll()
 	rand.Seed(time.Now().UnixNano())
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

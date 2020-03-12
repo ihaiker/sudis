@@ -37,7 +37,7 @@
                         <b-card class="text-white bg-primary py-3 d-md-down-none" style="width:44%">
                             <b-card-body class="text-center">
                                 <div>
-                                    <img src="/logo2.png" style="width: 3rem;"/>
+                                    <img src="@/assets/images/logo2.png" style="width: 3rem;"/>
                                     <h4>Sudis</h4>
                                     <p>Distributed supervisor process control system .</p>
                                     <a href="https://github.com/ihaiker/sudis" target="_blank" class="btn btn-primary active mt-3">Read More!</a>

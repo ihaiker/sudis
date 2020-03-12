@@ -1,6 +1,6 @@
 # Sudis
 
-![sudis logo](webui/public/logo.png)
+![sudis logo](webui/src/assets/images/logo.png)
 
 Sudis !! 分布式程序控制系统。
 
@@ -8,9 +8,7 @@ Supervister程序使用Go语言实现分布式一站式管理。
 
 中文说明 | [English](README.md)
 
-源代码: [Github](https://github.com/ihaiker/sudis) | [Gitee](https://gitee.com/ihaiker/sudis)
-
-程序分布方式：
+程序构架方式：
 
 ![sudis.svg](./docs/views/sudis.svg)
 
@@ -44,9 +42,6 @@ Supervister程序使用Go语言实现分布式一站式管理。
 ## 未实现功能
 
 - [ ] 发送程序状态变更通知. (webhook, 邮件, 短信, gNotify).  [gNotify](https://github.com/ihaiker/gNotify) 一个多渠道集成推送管理平台，处于设计和开发阶段。
-- [ ] 主控节点master支持server节点使用WebSocket连接。
-- [ ] 开放API
-
 
 ## 技术支持
 ![QQ支持群](./docs/qq.png)

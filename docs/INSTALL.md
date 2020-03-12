@@ -4,7 +4,7 @@
 
 ## 依赖程序
 
-- go 1.12+ [安装教程](https://www.runoob.com/go/go-environment.html)
+- go 1.13+ [安装教程](https://www.runoob.com/go/go-environment.html)
 - nodejs (npm,vue) [安装教程](https://www.runoob.com/nodejs/nodejs-install-setup.html)
 - go-bindata [教程](https://github.com/shuLhan/go-bindata)
 - make (非必须)
@@ -33,8 +33,9 @@ make release
 ```
 编译完的程序在 当前文件夹bin目录下，编译完成。
 
-#### 编译程序
-第一步：编译生成前端页面
+#### 编译程序 
+
+第一步：编译生成前端页面（v3版已经上传编译结果，不用再执行此部分）
 ```shell script
 $ cd sudis/webui 
 webui$ npm i -g @vue/cli #安装vue cli
@@ -60,145 +61,131 @@ $ go build
 ```
 
 ### 程序配置
-复制`conf/sudis.toml.example` 到 `bin/conf/sudis.toml`
-```toml
-[master]
-  band = ":5983"
-  http = ":5984"
-  securityToken = "4E4AD35C6C0BEB20DC343A1E8F7E32D4"
-  salt = "2CCAKYGBPTCET2S6"
-  [master.database]
-    type = "sqlite3"
-    url = "/etc/sudis/sudis.db"
+复制`libs/config/sudis.example.yaml` 到 conf/sudis.yaml`
+```yaml
+#### 是否已debug模式运行
+#debug: false
 
-[server]
-  dir = "/etc/sudis/programs"
-  sock = "unix://etc/sudis/sudis.sock"
-  master = "tcp://127.0.0.1:5983"
-  securityToken = "4E4AD35C6C0BEB20DC343A1E8F7E32D4"
+#### node 节点唯一ID，不指定将会获取hostname,如果多机器下hostname重复需要明确指定
+#key: sudis
+
+
+#### 数据存储位置，
+# 1、如果用未指定数据存储位置也没有设置配置文件，数据位置为: $HOME/.sudis
+# 2、如果用户设置了配置文件，单位设置数据位置，默认为: dir(conf)
+#data-path: $HOME/.sudis
+
+#### OpenApi,WebAdmin 开放地址，默认不开放
+address: 127.0.0.1:5984
+
+#### 是否禁用web管理台，默认不禁用，此参数只有配置address起效
+#disable-webui: false
+
+#### 数据存储配置
+#database:
+#  type: sqlite3
+#  url: sudis.db
+
+
+#### 是否开发管理节点，默认不开放
+manager: 127.0.0.1:5983
+
+#### 托管加入地址，默认不加入任何地址
+#join: []
+#### or
+#join:
+# - 192.168.1.254:5983
+# - 192.168.1.253:5983
+
+#### 程序默认等待时间，例如关闭时间
+#maxwait: 15s
+
+#### 安全加密盐值,用户
+salt: whosyourdaddy
 ```
-> 配置解释
-
-`master`: 用来配置主控节点信息
-
-`master.http`: 主控节点开放HTTP服务地址，默认：:5984
-
-`master.salt`：管理端采用无状态控制用户登录，此值为用生成无状态验证串添加盐值。**（务必修改）**
-
-`master.bind`：主控节点绑定的TCP端口地址，用于分布情况下程序server节点加入主控。默认：:5983
-
-`master.securityToken`：master,server节点通信认证的安全串。
-
-`master.database`：主控节点数据库配置。支持: sqlite3,mysql
-
-```toml
-[master]
-  [master.database]
-    type = "mysql"
-    url = "sudis:passwd@127.0.0.1:3306/sudis?charset=utf8"
-```
-
-`server` : 程序控制节点
-
-`server.dir`: 程序配置文件所在位置。默认：$PWD/conf/programs
-
-`server.sock`: 节点控制sock服务连接地址。默认 $PWD/conf/sudis.sock
-
-`server.master`: 连接主控节点地址。
-
-`server.securityToken`：master,server节点通信认证的安全串。
-
-
 
 ## 运行程序
 
-### 初始化中控节点：
-
-```shell
-$ sudis master init 
-```
-
-执行完成此步，会在数据库中建立相应的数据表结构，初始化管理用户。
-
-
-
-### **启动中控节点(master)：**
-
-```shell
-$ sudis master
+```she
+$ sudis -f conf/sudis.yaml 
 ```
 
 
 
-### **程序控制节点(server)：**
+## 集群部署
 
-```shell
-$ sudis server
+集群部署所有的配置文件类似。
+
+> 部署准备，两管理多托管
+
+两台管理端 ： 192.168.0.100 ,192.168.0.101， 三台托管机器，192.168.0.102，192.168.0.103，192.168.0.104
+
+主节点管理配置：（最简化配置）
+
+```yaml
+address: 0.0.0.0:5984
+manager: 0.0.0.0:5983
+salt: whosyourdaddy
 ```
 
-程序控制节点可以分布在多台机器上，配置方式和启动完全一致。
+机器配置：(最简化配置)
 
-
-
-###  单节点启动
-
-> 上面的程序启动是分布式情况下的启动，如果您只是单机是使用可以使用独立模式运行
-
-```shell
-$ sudis single
-或者
-$ sudis # single 是默认命令
+```yaml
+salt: whosyourdaddy ## 注意盐值必须和主节点一致
+join:
+	- 192.168.0.100:5983
+	- 192.168.0.101:5983
 ```
 
-
-### 登录中控台
-
-打开地址 http://master:5984 即可。`master`:为主控节点IP， 默认的登录用户为:admin，密码：12345678
+注意：托管配置，没有打开webui管理功能，如果需要打开只需配置`address`即可，主节点虽然可以多个但是并非严格意义商的HA主节点，只是有多个主节点而已，不建议使用nginx直接代理（查看日志会出现问题）
 
 
-### 开机启动支持：
 
-```shell script
-./sudis initd single # 单节点服务
-./sudis initd server # 服务节点
-./sudis initd master # 主控节点 
+## 进入管理
+
+### webui 管理（需要配置开启）
+
+webui默认地址： 超级管理员默认密码为：admin:12345678
+
 ```
-注：不能在同一台机器上同时安装不同节点
+http://localhost:5984
+```
 
-## 更多命令
+关于通知配置：请查询 [通知配置](./NOTIFY.md)
+
+
+
+### cli 命令行管理
 
 程序启动参数和命令可以通过 -h 帮助方式查询例如：
 
 ```shell
-$ ./bin/sudis -h
-sudis, 一个分布式进程控制程序。
+$ ./bin/sudis cli -h
+SUDIS V3, 一个分布式进程控制程序。
 
 Usage:
-  sudis [flags]
-  sudis [command]
+  sudis console [command]
+
+Aliases:
+  console, cli
 
 Available Commands:
   add         添加程序管理
-  console     管理端命令
   delete      删除管理的程序
   detail      查看配置信息，JSON
-  help        Help about any command
+  join        加入主控节点
   list        查看程序列表
-  master      管理控制端
   modify      修改程序
-  server      守护进程管理端
-  shutdown    关闭进程管理服务
-  single      独立模式启动(默认命令)
   start       启动管理的程序
   status      查看运行状态
   stop        停止管理的程序
+  tag         添加程序标签
   tail        查看日志
 
 Flags:
-  -f, --conf string    配置文件
-  -d, --debug          Debug模式
-  -h, --help           help for sudis
-  -l, --level string   日志级别 (default "info")
-      --version        version for sudis
+  -h, --help               help for console
+  -k, --node string        执行的节点
+  -s, --sock string        连接服务端sock地址.(default: ${data-path}/sudis.sock)
+  -t, --timeout duration   wait timeout (default 15s)
 ```
 

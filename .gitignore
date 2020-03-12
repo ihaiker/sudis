@@ -6,18 +6,12 @@
 *.test
 *.out
 
-
 /bin
-
-.idea
-/conf/programs
-/conf/sudis.sock
-/conf/sudis.db*
-/master/server/http/http_static_bindata_assets.go
-/.env
-/conf/logs.yaml
-/conf/sudis.toml
 /vendor
-*.iml
+.idea
 
-TODOLIST.md
+/conf
+/etc
+/.env
+/nodes/http/http_static_bindata_assets.go
+*.iml

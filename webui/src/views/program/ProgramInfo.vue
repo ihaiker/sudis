@@ -35,7 +35,9 @@
                 </tr>
                 <tr>
                     <td>工作目录</td>
-                    <td colspan="3">{{program.workDir}}</td>
+                    <td>{{program.workDir}}</td>
+                    <td>日志输出</td>
+                    <td>{{program.logger}}</td>
                 </tr>
                 <tr>
                     <td>启动用户</td>

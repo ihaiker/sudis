@@ -26,20 +26,15 @@
         <div class="alert alert-info mt-2">
             通知模板：<span v-if="address">{{address}}?access_token={{token}}</span>
         </div>
-        <attrs @change="content = content + $event"/>
-        <textarea class="form-control mt-3" style="min-height: 350px;" v-model="content"/>
+        <textarea class="form-control mt-3" style="min-height: 350px;" v-model="content" placeholder="使用程序默认JSON推送"/>
     </div>
 </template>
 
 <script>
-    import Attrs from "./attrs";
-
     export default {
         name: "webhook",
-        components: {Attrs},
         data: () => ({
-            address: "", token: "",
-            content: `{"name": "", "node": "", "text":""}`
+            address: "", token: "", content: ``
         }),
         mounted() {
             this.getConfig();
@@ -48,7 +43,7 @@
             testConfig() {
                 this.execConfig("/admin/notify/test")
             },
-            setConfig(){
+            setConfig() {
                 this.execConfig("/admin/notify")
             },
             getConfig() {
@@ -59,7 +54,7 @@
                     self.token = config.token;
                     self.content = config.content;
                 }).catch(e => {
-                    self.$toast.error(e.message);
+                    self.$toast.error("WebHock" + e.message);
                 })
             },
             execConfig(uri) {
@@ -68,7 +63,7 @@
                 self.$axios.post(uri, {name: "webhook", config: JSON.stringify(config)}).then(res => {
                     self.$toast.success('成功！');
                 }).catch(e => {
-                    self.$toast.error(e.message);
+                    self.$toast.error("WebHock" + e.message);
                 });
             },
         }

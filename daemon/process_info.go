@@ -1,96 +1,31 @@
 package daemon
 
 import (
-	"errors"
 	"fmt"
-	"os/exec"
+	"github.com/ihaiker/gokit/maths"
+	"github.com/shirou/gopsutil/process"
 	"strconv"
-	"strings"
-
-	mps "github.com/mitchellh/go-ps"
 )
 
-type ProcessInfo struct {
-	mps.Process
-}
-
-func NewProcessInfo(pid int) (p ProcessInfo, err error) {
-	mp, err := mps.FindProcess(pid)
+func GetProcessInfo(pid int32) (cupPercent float64, useMem uint64, err error) {
+	var p *process.Process
+	p, err = process.NewProcess(pid)
 	if err != nil {
 		return
 	}
-	return ProcessInfo{
-		Process: mp,
-	}, nil
-}
 
-type ProcInfo struct {
-	Pid  int     `json:"pid"`
-	Pids []int   `json:"pids"`
-	Rss  int     `json:"rss"`
-	PCpu float64 `json:"pcpu"`
-}
-
-func (pi *ProcInfo) Add(add ProcInfo) {
-	pi.Rss += add.Rss
-	pi.PCpu += add.PCpu
-}
-
-// CPU Percent * 100
-// only linux and darwin works
-func (p *ProcessInfo) ProcInfo() (pi ProcInfo, err error) {
-	pi.Pid = p.Pid()
-	cmd := exec.Command("ps", "-o", "pcpu,rss", "-p", strconv.Itoa(p.Pid()))
-	output, err := cmd.Output()
-	if err != nil {
-		err = errors.New("ps err: " + err.Error())
-		return
-	}
-
-	fields := strings.SplitN(string(output), "\n", 2)
-	if len(fields) != 2 {
-		err = errors.New("parse ps command out format error")
-		return
-	}
-	_, err = fmt.Sscanf(fields[1], "%f %d", &pi.PCpu, &pi.Rss)
-	pi.Rss *= 1024
-	return
-}
-
-// Get all child process
-func (p *ProcessInfo) Children(recursive bool) (cps []ProcessInfo) {
-	pses, err := mps.Processes()
+	var memInfo *process.MemoryInfoStat
+	memInfo, err = p.MemoryInfo()
 	if err != nil {
 		return
 	}
-	pidMap := make(map[int][]mps.Process, 0)
-	for _, p := range pses {
-		pidMap[p.PPid()] = append(pidMap[p.PPid()], p)
-	}
-	var travel func(int)
-	travel = func(pid int) {
-		for _, p := range pidMap[pid] {
-			cps = append(cps, ProcessInfo{p})
-			if recursive {
-				travel(p.Pid())
-			}
-		}
-	}
-	travel(p.Pid())
-	return
-}
+	useMem = uint64(maths.Divide64(float64(memInfo.VMS+memInfo.RSS), 1024.0*1024.0))
 
-//Sum everything
-func (p *ProcessInfo) ChildrenProcInfo(recursive bool) (pi ProcInfo) {
-	cps := p.Children(recursive)
-	for _, cp := range cps {
-		info, er := cp.ProcInfo()
-		if er != nil {
-			continue
-		}
-		pi.Add(info)
-		pi.Pids = append(pi.Pids, cp.Pid())
+	cupPercent, err = p.CPUPercent()
+	if err != nil {
+		return
 	}
-	pi.Pid = p.Pid()
+
+	cupPercent, _ = strconv.ParseFloat(fmt.Sprintf("%0.4f", cupPercent), 10)
 	return
 }

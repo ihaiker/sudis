@@ -1,21 +1,21 @@
 package daemon
 
-type FSMEvent string
+type (
+	FSMState string
 
-const (
-	StartProgram      = FSMEvent("start-program")       //程序启动
-	StopProgram       = FSMEvent("stop-program")        //程序已停止
-	ProgramNotSurvive = FSMEvent("program-not-survive") //程序不存活
-	ProgramSurvive    = FSMEvent("program-survive")     //程序恢复存活
+	FSMStatusEvent struct {
+		Process    *Process `json:"process"`
+		FromStatus FSMState `json:"fromStatus"`
+		ToStatus   FSMState `json:"toStatus"`
+	}
+
+	FSMStatusListener func(event FSMStatusEvent)
 )
-
-type FSMState string
 
 const (
 	Ready     = FSMState("ready")
 	Starting  = FSMState("starting")
 	Running   = FSMState("running")
-	Stopped   = FSMState("stopped")
 	Fail      = FSMState("fail")
 	RetryWait = FSMState("retry")
 	Stopping  = FSMState("stopping")
@@ -30,10 +30,6 @@ func (f FSMState) IsRunning() bool {
 	return f == Running || f == Starting
 }
 
-//如果oldStatus为空，则是新程序添加
-//如果newStatus为空，则为删除管理
-type FSMStatusListener func(process *Process, oldStatus, newStatus FSMState)
-
-func StdoutStatusListener(process *Process, oldStatus, newStatus FSMState) {
-	logger.Debug("program(%s)  from %s to %s", process.Program.Name, oldStatus, newStatus)
+func StdoutStatusListener(event FSMStatusEvent) {
+	logger.Debug("program(%s)  from %s to %s", event.Process.Name, event.FromStatus, event.ToStatus)
 }

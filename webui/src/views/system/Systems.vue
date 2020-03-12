@@ -21,6 +21,14 @@
                         正在开发中，敬请期待......
                     </h4>
                 </b-tab>
+                <b-tab>
+                    <template slot="title">
+                        <i class="icons cui-comment-square"/>&nbsp;推送配置说明
+                    </template>
+                    <h4 class="p-5">
+                        <a href="https://gitee.com/ihaiker/sudis/blob/master/docs/NOTIFY.md" target="_blank">点击查看详细配置说明</a>
+                    </h4>
+                </b-tab>
             </b-tabs>
         </div>
     </div>

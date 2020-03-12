@@ -15,10 +15,10 @@ import (
 )
 
 type Process struct {
-	Pid   int      `json:"pid"`
-	State FSMState `json:"state"`
+	Pid    int      `json:"pid"`
+	Status FSMState `json:"status"`
 
-	Program *Program `json:"program"`
+	*Program
 
 	cmd *kexec.KCommand
 
@@ -31,12 +31,12 @@ type Process struct {
 	stopC chan syscall.Signal
 
 	Cpu float64 `json:"cpu"`
-	Rss int     `json:"rss"`
+	Rss uint64  `json:"rss"`
 }
 
 func NewProcess(program *Program) *Process {
 	return &Process{
-		State:     Ready,
+		Status:    Ready,
 		Program:   program,
 		retryLeft: program.StartRetries,
 	}
@@ -49,7 +49,7 @@ func (f *Process) initLogger() (err error) {
 	return
 }
 func (f *Process) GetStatus() FSMState {
-	return f.State
+	return f.Status
 }
 
 func (f *Process) GetLogger() *ProcessLogger {
@@ -57,7 +57,7 @@ func (f *Process) GetLogger() *ProcessLogger {
 }
 
 func (f *Process) setState(newState FSMState) {
-	if f.State == newState {
+	if f.Status == newState {
 		return
 	}
 	if newState == Running {
@@ -67,9 +67,9 @@ func (f *Process) setState(newState FSMState) {
 	}
 
 	if f.statusListener != nil {
-		f.statusListener(f, f.State, newState)
+		f.statusListener(FSMStatusEvent{Process: f, FromStatus: f.Status, ToStatus: newState})
 	}
-	f.State = newState
+	f.Status = newState
 }
 
 func (p *Process) startedCallback(determinedResult chan *Process) {
@@ -81,8 +81,8 @@ func (p *Process) startedCallback(determinedResult chan *Process) {
 }
 
 func (p *Process) startCommand(determinedResult chan *Process) (err error) {
-	if p.State == Starting || p.State == Running {
-		return errors.New(fmt.Sprintf("the program(%s) is %s", p.Program.Name, p.State))
+	if p.Status == Starting || p.Status == Running {
+		return errors.New(fmt.Sprintf("the program(%s) is %s", p.Program.Name, p.Status))
 	}
 	startCmd := p.Program.Start
 
@@ -109,7 +109,7 @@ func (p *Process) startCommand(determinedResult chan *Process) (err error) {
 				//关掉检查，这个时候确定已经出问题了
 				safeCloseBool(startCheck)
 
-				if p.State == Stopping { //执行关闭动作直接退出
+				if p.Status == Stopping { //执行关闭动作直接退出
 					return
 				}
 
@@ -131,7 +131,7 @@ func (p *Process) startCommand(determinedResult chan *Process) (err error) {
 					safeCloseSig(p.stopC)
 				}
 			case <-p.stopC:
-				if p.State == Starting || p.State == Running {
+				if p.Status == Starting || p.Status == Running {
 					safeCloseBool(startCheck)
 					_ = p.stopCommand()
 				}
@@ -221,8 +221,8 @@ func (p *Process) healthCheck(cmd *Command) error {
 }
 
 func (p *Process) stopCommand() error {
-	if p.State != Starting && p.State != Running {
-		return errors.New(fmt.Sprintf("the program(%s) is %s", p.Program.Name, p.State))
+	if p.Status != Starting && p.Status != Running {
+		return errors.New(fmt.Sprintf("the program(%s) is %s", p.Program.Name, p.Status))
 	}
 
 	p.setState(Stopping)
@@ -337,19 +337,13 @@ func (p *Process) buildCommand(command *Command) (cmd *kexec.KCommand, err error
 	return
 }
 
-func (p *Process) Refresh() {
-	p.Cpu = 0
-	p.Rss = 0
-
+func (p *Process) refresh() {
 	if p.Pid == 0 {
 		return
-	} else if process, err := NewProcessInfo(p.Pid); err != nil {
-		logger.Debug("get process info error: ", err)
-	} else if pi, err := process.ProcInfo(); err != nil {
-		logger.Debug("get process info error: ", err)
-	} else {
-		p.Cpu = pi.PCpu
-		p.Rss = pi.Rss
+	}
+	var err error
+	if p.Cpu, p.Rss, err = GetProcessInfo(int32(p.Pid)); err != nil {
+		logger.Debug("get group info error: ", err)
 	}
 }
 
@@ -358,6 +352,8 @@ func (p *Process) Freed() {
 	if p.log != nil {
 		_ = p.log.Close()
 	}
+	p.Cpu = 0
+	p.Rss = 0
 }
 
 func safeCloseSig(c chan syscall.Signal) {

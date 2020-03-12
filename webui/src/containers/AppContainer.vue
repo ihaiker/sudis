@@ -4,7 +4,7 @@
         <AppHeader fixed>
             <SidebarToggler class="d-lg-none" display="md" mobile/>
             <b-link class="navbar-brand" to="/admin">
-                <img class="navbar-brand-full" src="/logo.png" width="89" height="25" alt="Sudis Logo">
+                <img class="navbar-brand-full" src="@/assets/images/logo.png" width="89" height="25" alt="Sudis Logo">
                 <img class="navbar-brand-minimized" src="/favicon.ico" width="30" height="30" alt="Sudis Logo">
             </b-link>
 
@@ -23,7 +23,7 @@
 
                 <AppHeaderDropdown right no-caret class="mr-3">
                     <template slot="header">
-                        <img src="/logo2.png" class="img-avatar"/>
+                        <img src="@/assets/images/logo2.png" class="img-avatar"/>
                     </template>
                     <template slot="dropdown">
                         <b-dropdown-item><i class="fa fa-user-circle"/> <strong>{{userName}}</strong></b-dropdown-item>

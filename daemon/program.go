@@ -15,76 +15,97 @@ const (
 	TCP   CheckMode = "tcp"
 )
 
-type CheckHealth struct {
-	CheckAddress string    `json:"url" yaml:"url" yaml:"url"`
-	CheckMode    CheckMode `json:"type" yaml:"type" yaml:"type"`
-	CheckTtl     int       `json:"ttl" yaml:"ttl" yaml:"ttl"`
-	//访问安全token定义，这里面是要定义key=value的，这样兼容性更高一些
-	SecretToken string `json:"securityKey,omitempty" yaml:"securityKey,omitempty" yaml:"securityKey,omitempty"`
+type Tags []string
+
+func (tags *Tags) Add(tag string) {
+	*tags = append(*tags, tag)
 }
 
-//程序命令，（启动或停止）
-type Command struct {
-	//程序运行体
-	Command string `json:"command" yaml:"command" yaml:"command"`
-
-	//启动参数
-	Args []string `json:"args,omitempty" yaml:"args,omitempty" yaml:"args,omitempty"`
-
-	//监控检车接口
-	CheckHealth *CheckHealth `json:"health,omitempty" yaml:"health,omitempty" yaml:"health,omitempty"`
+func (tags *Tags) Remove(tag string) {
+	for i, t := range *tags {
+		if t == tag {
+			*tags = append((*tags)[:i], (*tags)[i+1:]...)
+			break
+		}
+	}
 }
 
-//监控程序
-type Program struct {
-	//程序唯一性ID，使用UUID方式
-	Id uint64 `json:"id" yaml:"id" yaml:"id"`
+type (
+	CheckHealth struct {
+		CheckAddress string    `json:"url"`
+		CheckMode    CheckMode `json:"type"`
+		CheckTtl     int       `json:"ttl"`
+		//访问安全token定义，这里面是要定义key=value的，这样兼容性更高一些
+		SecretToken string `json:"securityKey,omitempty"`
+	}
 
-	Daemon string `json:"daemon" yaml:"daemon" toml:"daemon"`
+	//程序命令，（启动或停止）
+	Command struct {
+		//程序运行体
+		Command string `json:"command,omitempty"`
 
-	//程序名称
-	Name string `json:"name" yaml:"name" yaml:"name"`
+		//启动参数
+		Args []string `json:"args,omitempty"`
 
-	Description string `json:"description" yaml:"description" toml:"description"`
+		//监控检车接口
+		CheckHealth *CheckHealth `json:"health,omitempty"`
+	}
+	//监控程序
+	Program struct {
+		//程序唯一性ID，使用UUID方式
+		Id uint64 `json:"id"`
 
-	//工作目录
-	WorkDir string `json:"workDir" yaml:"workDir" yaml:"workDir"`
+		Node string `json:"node,omitempty"`
 
-	//启动使用用户
-	User string `json:"user" yaml:"user" yaml:"user"`
+		Daemon string `json:"daemon"`
 
-	//环境参数变量
-	Envs []string `json:"envs,omitempty" yaml:"envs,omitempty" yaml:"envs,omitempty"`
+		//程序名称
+		Name string `json:"name"`
 
-	//是不是守护程序，如果是需要提供启动和停止命令 前台程序
-	Start *Command `json:"start" yaml:"start" toml:"start"`
+		Description string `json:"description,omitempty"`
 
-	//启动停止命令
-	Stop *Command `json:"stop,omitempty" yaml:"stop,omitempty" toml:"stop,omitempty"`
+		//程序标签
+		Tags Tags `json:"tags"`
 
-	//忽略,deamon类型的程序已经启动，也会直接加入管理
-	IgnoreAlreadyStarted bool `json:"ignoreStarted" yaml:"ignoreStarted" yaml:"ignoreStarted"`
+		//工作目录
+		WorkDir string `json:"workDir,omitempty"`
 
-	//是否自动启动
-	AutoStart bool `json:"autoStart" yaml:"autoStart" toml:"autoStart"`
+		//启动使用用户
+		User string `json:"user,omitempty"`
 
-	//启动周期
-	StartDuration int `json:"startDuration" yaml:"startDuration" yaml:"startDuration"`
+		//环境参数变量
+		Envs []string `json:"envs,omitempty"`
 
-	//启动重试次数
-	StartRetries int `json:"startRetries" yaml:"startRetries" yaml:"startRetries"`
+		//是不是守护程序，如果是需要提供启动和停止命令 前台程序
+		Start *Command `json:"start"`
 
-	StopSign syscall.Signal `json:"stopSign" yaml:"stopSign" yaml:"stopSign"`
+		//启动停止命令
+		Stop *Command `json:"stop,omitempty"`
 
-	//结束运行超时时间
-	StopTimeout int `json:"stopTimeout" yaml:"stopTimeout" yaml:"stopTimeout"`
+		//忽略,deamon类型的程序已经启动，也会直接加入管理
+		IgnoreAlreadyStarted bool `json:"ignoreStarted,omitempty"`
 
-	AddTime    time.Time `json:"addTime" yaml:"addTime" yaml:"addTime"`
-	UpdateTime time.Time `json:"updateTime" yaml:"updateTime" yaml:"updateTime"`
+		//是否自动启动
+		AutoStart bool `json:"autoStart,omitempty"`
 
-	//日志文件位置
-	Logger string `json:"logger" yaml:"logger" toml:"logger"`
-}
+		//启动周期
+		StartDuration int `json:"startDuration,omitempty"`
+
+		//启动重试次数
+		StartRetries int `json:"startRetries,omitempty"`
+
+		StopSign syscall.Signal `json:"stopSign,omitempty"`
+
+		//结束运行超时时间
+		StopTimeout int `json:"stopTimeout,omitempty"`
+
+		AddTime    time.Time `json:"addTime,omitempty"`
+		UpdateTime time.Time `json:"updateTime,omitempty"`
+
+		//日志文件位置
+		Logger string `json:"logger,omitempty"`
+	}
+)
 
 func (this *Program) IsForeground() bool {
 	return this.Daemon == "0"
@@ -94,11 +115,16 @@ func (this *Program) JSON() string {
 	bs, _ := json.Marshal(this)
 	return string(bs)
 }
+func (this *Program) JSONByte() []byte {
+	bs, _ := json.Marshal(this)
+	return bs
+}
 
 func NewProgram() *Program {
 	currentUser, _ := user.Current()
 	return &Program{
 		Daemon:        "0",
+		Tags:          Tags{},
 		WorkDir:       currentUser.HomeDir,
 		User:          currentUser.Username,
 		AutoStart:     false,

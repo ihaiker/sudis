@@ -1,0 +1,37 @@
+#### 是否已debug模式运行
+#debug: false
+
+#### node 节点唯一ID，不指定将会获取hostname,如果多机器下hostname重复需要明确指定
+#key: sudis
+
+#### 数据存储位置，
+# 1、如果用未指定数据存储位置也没有设置配置文件，数据位置为: $HOME/.sudis
+# 2、如果用户设置了配置文件，单位设置数据位置，默认为: dir(conf)
+#data-path: $HOME/.sudis
+
+#### OpenApi,WebAdmin 开放地址，默认不开放
+address: 127.0.0.1:5984
+
+#### 是否禁用web管理台，默认不禁用，此参数只有配置address起效
+#disable-webui: false
+
+#### 数据存储配置
+#database:
+#  type: sqlite3
+#  url: sudis.db
+
+#### 是否开发管理节点，默认不开放
+manager: 127.0.0.1:5983
+
+#### 托管加入地址，默认不加入任何地址
+#join: []
+#### or
+#join:
+# - 192.168.1.254:5983
+# - 192.168.1.253:5983
+
+#### 程序默认等待时间，例如关闭时间
+#maxwait: 15s
+
+#### 安全加密盐值,用户
+salt: whosyourdaddy
