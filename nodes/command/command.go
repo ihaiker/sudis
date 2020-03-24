@@ -14,6 +14,7 @@ import (
 	"github.com/ihaiker/sudis/nodes/cluster"
 	"github.com/ihaiker/sudis/nodes/join"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -46,6 +47,11 @@ func getTimeout(request *rpc.Request) time.Duration {
 	} else {
 		return time.Second * time.Duration(seconds)
 	}
+}
+
+func True(request *rpc.Request, header string) bool {
+	val, exists := request.GetHeader(header)
+	return exists && val == "true"
 }
 
 func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc.OnMessage {
@@ -91,16 +97,34 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 
 		case "list":
 			node, _ = request.GetHeader("node")
-			process := dm.ListPrograms("", node, "", "", 1, 2000)
-			if inspect, has := request.GetHeader("inspect"); has && inspect == "true" {
-				response.Body, _ = json.Marshal(process.Data)
-			} else {
-				names := make([]string, process.Total)
-				for _, d := range process.Data.([]*daemon.Process) {
-					names = append(names, d.Name)
-				}
-				response.Body, _ = json.Marshal(names)
+
+			all := True(request, "all")
+			inspect := True(request, "inspect")
+			quiet := True(request, "quiet")
+
+			processes := dm.ListPrograms("", node, "", "", 1, 2000)
+
+			outs := make([]interface{}, 0)
+			if !inspect && !quiet {
+				outs = append(outs, strings.Repeat("-", 2+20+3+20+3+7+2))
+				outs = append(outs, fmt.Sprintf("| %20s | %20s | %7s |", "Node", "Name", "Status"))
+				outs = append(outs, strings.Repeat("-", 2+20+3+20+3+7+2))
 			}
+
+			for _, p := range processes.Data.([]*daemon.Process) {
+				if all || p.Status.IsRunning() {
+					if inspect {
+						outs = append(outs, p)
+					} else if quiet {
+						outs = append(outs, fmt.Sprintf("%s.%s", p.Node, p.Name))
+					} else {
+						outs = append(outs, fmt.Sprintf("| %20s | %20s | %7s |", p.Node, p.Name, p.Status.String()))
+						outs = append(outs, strings.Repeat("-", 2+20+3+20+3+7+2))
+					}
+				}
+			}
+
+			response.Body, _ = json.Marshal(outs)
 
 		case "add":
 			{

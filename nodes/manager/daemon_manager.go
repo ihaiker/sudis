@@ -92,6 +92,7 @@ func (self *joinedDaemonManger) ListProgramNames() ([]string, error) {
 func (self *joinedDaemonManger) ListProcess() (process []*daemon.Process, err error) {
 	req := makeRequest("list")
 	req.Header("inspect", "true")
+	req.Header("all", "true")
 
 	if resp := self.sendRequest(req); resp.Error != nil {
 		err = resp.Error

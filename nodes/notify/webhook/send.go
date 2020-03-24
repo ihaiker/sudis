@@ -12,10 +12,14 @@ var logger = logs.GetLogger("webhook")
 
 func SendWebhook(data interface{}) {
 	cfg, has, err := dao.NotifyDao.Get("webhook")
-	if err != nil || !has {
-		logger.Warn("WebHook获取异常：has=", has, " error=", err)
+	if err != nil {
+		logger.Warn("WebHook获取异常：", err)
 		return
 	}
+	if !has {
+		return
+	}
+
 	config := new(dao.JSON)
 	if err = json.Unmarshal([]byte(cfg.Config), config); err != nil {
 		logger.Warn("WebHook配置异常: ", err)

@@ -59,14 +59,18 @@ func makeRequest(cmd string, body ...string) *rpc.Request {
 	return request
 }
 
-func sendRequest(request *rpc.Request) *rpc.Response {
+func sendRequest(request *rpc.Request, disablePrintln ...bool) *rpc.Response {
 	seconds := viper.GetDuration("timeout")
 	request.Header("timeout", fmt.Sprintf("%.0f", seconds.Seconds()))
 	resp := client.Send(request, seconds)
-	if resp.Error != nil {
-		fmt.Println(resp.Error)
+	if len(disablePrintln) > 0 && disablePrintln[0] {
+		//
 	} else {
-		fmt.Println(string(resp.Body))
+		if resp.Error != nil {
+			fmt.Println(resp.Error)
+		} else {
+			fmt.Println(string(resp.Body))
+		}
 	}
 	return resp
 }
