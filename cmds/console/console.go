@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -61,9 +60,9 @@ func makeRequest(cmd string, body ...string) *rpc.Request {
 }
 
 func sendRequest(request *rpc.Request) *rpc.Response {
-	seconds := viper.GetInt("timeout")
-	request.Header("timeout", strconv.Itoa(seconds))
-	resp := client.Send(request, time.Second*time.Duration(seconds))
+	seconds := viper.GetDuration("timeout")
+	request.Header("timeout", fmt.Sprintf("%.0f", seconds.Seconds()))
+	resp := client.Send(request, seconds)
 	if resp.Error != nil {
 		fmt.Println(resp.Error)
 	} else {

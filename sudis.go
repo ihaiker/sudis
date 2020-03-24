@@ -54,13 +54,12 @@ func init() {
 			}
 		}
 		viper.AutomaticEnv()
-		if err := viper.ReadInConfig(); err == nil {
-			fmt.Println("Using config file:", viper.ConfigFileUsed())
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Println("read config error: ", err)
 		}
 		if err := viper.Unmarshal(config.Config); err != nil {
-			fmt.Println("unmarshal error", err)
+			fmt.Println("unmarshal error ", err)
 		}
-
 		if config.Config.DataPath == "" {
 			if useConfig := viper.ConfigFileUsed(); useConfig != "" {
 				config.Config.DataPath = filepath.Dir(useConfig)

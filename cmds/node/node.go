@@ -14,6 +14,7 @@ import (
 	"github.com/ihaiker/sudis/nodes/join"
 	"github.com/ihaiker/sudis/nodes/manager"
 	"github.com/ihaiker/sudis/nodes/notify"
+	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 )
@@ -22,6 +23,7 @@ func Start() (err error) {
 	defer errors.Catch(func(re error) {
 		err = re
 	})
+	fmt.Println("Using config file:", viper.ConfigFileUsed())
 
 	//启动数据库
 	errors.Assert(dao.CreateEngine(Config.DataPath, Config.Database))

@@ -10,7 +10,7 @@
 #data-path: $HOME/.sudis
 
 #### OpenApi,WebAdmin 开放地址，默认不开放
-address: 127.0.0.1:5984
+address: 0.0.0.0:5984
 
 #### 是否禁用web管理台，默认不禁用，此参数只有配置address起效
 #disable-webui: false
@@ -21,7 +21,7 @@ address: 127.0.0.1:5984
 #  url: sudis.db
 
 #### 是否开发管理节点，默认不开放
-manager: 127.0.0.1:5983
+manager: 0.0.0.0:5983
 
 #### 托管加入地址，默认不加入任何地址
 #join: []
