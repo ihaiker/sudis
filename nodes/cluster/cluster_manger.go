@@ -365,6 +365,15 @@ func (self *DaemonManager) NodeLeave(key, address string) {
 	}
 }
 
+func (self DaemonManager) RemoveJoin(key string) error {
+	if d, err := self.Get(key); err == nil {
+		if err = d.Stop(); err != nil {
+			logger.Warn("remove join error: ", err)
+		}
+	}
+	return dao.NodeDao.Remove(key)
+}
+
 func (self *DaemonManager) SetStatusListener(statusListener daemon.FSMStatusListener) {
 	self.eventListener = statusListener
 }

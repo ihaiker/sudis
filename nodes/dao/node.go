@@ -26,10 +26,6 @@ const (
 	NodeStatusOutline NodeStatus = "outline"
 )
 
-func (self *nodeDao) Ready() {
-	_, _ = engine.Update(&Node{Status: NodeStatusOutline}, &Node{})
-}
-
 func (self *nodeDao) List() (nodes []*Node, err error) {
 	nodes = make([]*Node, 0)
 	err = engine.Find(&nodes)
@@ -54,6 +50,11 @@ func (self *nodeDao) Add(ip, key string) error {
 		}
 	}
 	return nil
+}
+
+func (self *nodeDao) Remove(key string) error {
+	_, err := engine.Delete(&Node{Key: key})
+	return err
 }
 
 func (self *nodeDao) Lost(ip, key string) error {
@@ -83,20 +84,6 @@ func (self *nodeDao) ModifyTag(key, tag string) error {
 	} else {
 		node.Tag = tag
 		if _, err = engine.Cols("tag").Update(&Node{Tag: node.Tag}, &Node{Key: key}); err != nil {
-			return err
-		}
-		return nil
-	}
-}
-
-func (self *nodeDao) UpdateNodesProcessNumber(key string, num int) error {
-	if node, has, err := self.Get(key); err != nil {
-		return err
-	} else if !has {
-		return errors.ErrNotFound
-	} else {
-		node.ProgramNum = num
-		if _, err = engine.Update(node, &Node{Key: key}); err != nil {
 			return err
 		}
 		return nil

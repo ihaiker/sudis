@@ -31,14 +31,9 @@
                         <span v-if="node.status === 'online'" class="btn btn-xs btn-success">
                             <i class="fa fa-check"></i> 在线
                         </span>
-                        <span v-else class="btn btn-xs btn-danger">
+                        <span v-else class="btn btn-xs btn-danger" @click="forceReload(node)">
                             <i class="fa fa-close"></i> 掉线
                         </span>
-                        <!--
-                        <button @click="forceReload(node)" class="btn btn-xs btn-dark ml-2">
-                            <i class="fa fa-refresh"/> 强制同步
-                        </button>
-                        -->
                     </td>
                     <td>{{node.time}}</td>
                 </tr>
@@ -70,12 +65,14 @@
             },
             forceReload(node) {
                 var self = this;
-                this.$axios.put("/admin/node/reload", {ip: node.ip})
-                    .then(res => {
-                        self.$toast.success("同步成功！");
-                        self.queryNode();
-                    }).catch(e => {
-                    self.$alert("[" + e.error + "]" + e.message);
+                self.$confirm('删除节点？').then(res => {
+                    self.$axios.delete("/admin/node/" + node.key)
+                        .then(res => {
+                            self.$toast.success("同步成功！");
+                            self.queryNode();
+                        }).catch(e => {
+                        self.$alert("[" + e.error + "]" + e.message);
+                    });
                 });
             }
         }

@@ -31,6 +31,9 @@ func (self *joinedDaemonManger) Start() error {
 }
 
 func (self *joinedDaemonManger) Stop() error {
+	if c, has := self.GetChannel(self.address); has {
+		return c.Close()
+	}
 	return nil
 }
 

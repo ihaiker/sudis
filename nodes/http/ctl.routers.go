@@ -30,6 +30,7 @@ func Routers(app *iris.Application, clusterManger *cluster.DaemonManager, joinMa
 			ctl := &NodeController{clusterManger: clusterManger}
 			node.Get("/list", h.Handler(ctl.queryNodeList)) //列表
 			node.Post("/tag", h.Handler(ctl.modifyNodeTag)) //打标签
+			node.Delete("/{key}", h.Handler(ctl.removeNode))
 		}
 
 		program := admin.Party("/program")

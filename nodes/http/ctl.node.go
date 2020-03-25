@@ -31,3 +31,8 @@ func (self *NodeController) modifyNodeTag(json *dao.JSON) int {
 
 	return iris.StatusNoContent
 }
+
+func (self *NodeController) removeNode(key string) int {
+	errors.Assert(self.clusterManger.RemoveJoin(key), "删除节点")
+	return iris.StatusNoContent
+}
