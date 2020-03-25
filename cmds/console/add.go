@@ -10,7 +10,8 @@ import (
 
 var addCmd = &cobra.Command{
 	Use: "add", Short: "添加程序管理", Long: "添加被管理的程序",
-	Example: "sudis [console] add [jsonfile]...",
+	Example: `sudis [console] add [jsonfile]...
+cat jsonfile | sudis [console] add`,
 	PreRunE: preRune, PostRun: runPost,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		programs := make([]string, 0)
@@ -21,8 +22,10 @@ var addCmd = &cobra.Command{
 				programs = append(programs, fileContent)
 			}
 		}
-		if content, err := ioutil.ReadAll(os.Stdin); err == nil {
-			programs = append(programs, string(content))
+
+		if info, _ := os.Stdin.Stat(); info.Size() > 0 {
+			body, _ := ioutil.ReadAll(os.Stdin)
+			programs = append(programs, string(body))
 		}
 
 		if len(programs) == 0 {

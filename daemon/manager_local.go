@@ -109,7 +109,7 @@ func (self *local) Stop() error {
 func (self *local) AddProgram(program *Program) error {
 	program.Node = self.nodeKey
 	if _, err := self.GetProcess(program.Name); err != ErrProgramNotFound {
-		return errors.Wrap(err, "程序未发现")
+		return ErrProgramExists
 	}
 	oldStatus := Ready
 	if program.Id == 0 {

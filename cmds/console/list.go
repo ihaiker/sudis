@@ -8,7 +8,8 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use: "list", Short: "查看程序列表", Long: "查看管理程序的列表（名称）", Args: cobra.NoArgs,
+	Use: "list", Aliases: []string{"ls"}, Args: cobra.NoArgs,
+	Short: "查看程序列表", Long: "查看管理程序的列表（名称）",
 	Example: "sudis [console] list --inspect",
 	PreRunE: preRune, PostRun: runPost,
 	Run: func(cmd *cobra.Command, args []string) {

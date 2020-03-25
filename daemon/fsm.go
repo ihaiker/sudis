@@ -31,5 +31,5 @@ func (f FSMState) IsRunning() bool {
 }
 
 func StdoutStatusListener(event FSMStatusEvent) {
-	logger.Debug("program(%s)  from %s to %s", event.Process.Name, event.FromStatus, event.ToStatus)
+	logger.Debugf("program(%s)  from %s to %s", event.Process.Name, event.FromStatus, event.ToStatus)
 }

@@ -23,8 +23,12 @@ cat jsonfile | sudis [console] modify <programName>`,
 			if content, err = files.New(args[1]).ToBytes(); err != nil {
 				return
 			}
-		} else if content, err = ioutil.ReadAll(os.Stdin); err != nil {
-			return
+		} else {
+			if info, _ := os.Stdin.Stat(); info.Size() > 0 {
+				if content, err = ioutil.ReadAll(os.Stdin); err != nil {
+					return
+				}
+			}
 		}
 
 		if len(content) == 0 {
@@ -32,10 +36,10 @@ cat jsonfile | sudis [console] modify <programName>`,
 		}
 
 		program := daemon.NewProgram()
-		program.Name = args[0]
 		if err = json.Unmarshal(content, program); err != nil {
 			return
 		}
+		program.Name = args[0]
 		request.Body, _ = json.Marshal(program)
 
 		sendRequest(request)

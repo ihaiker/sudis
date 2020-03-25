@@ -235,6 +235,14 @@ func (self *DaemonManager) GetProgram(node string, name string) (*daemon.Program
 	return process.Program, nil
 }
 
+func (self *DaemonManager) AddProgram(node string, program *daemon.Program) error {
+	if d, err := self.Get(node); err != nil {
+		return err
+	} else {
+		return d.AddProgram(program)
+	}
+}
+
 func (self *DaemonManager) MustAddProgram(node string, program *daemon.Program) {
 	d := self.MustGet(node)
 	d.MustAddProgram(program)
@@ -243,6 +251,7 @@ func (self *DaemonManager) MustAddProgram(node string, program *daemon.Program) 
 func (self *DaemonManager) MustModifyProgram(node string, name string, program *daemon.Program) {
 	d := self.MustGet(node)
 	program.Name = name
+	program.Node = node
 	d.MustModifyProgram(program)
 }
 

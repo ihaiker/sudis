@@ -3,6 +3,7 @@ package node
 import (
 	"fmt"
 	"github.com/ihaiker/gokit/errors"
+	"github.com/ihaiker/gokit/logs"
 	"github.com/ihaiker/gokit/remoting/rpc"
 	runtimeKit "github.com/ihaiker/gokit/runtime"
 	"github.com/ihaiker/sudis/daemon"
@@ -23,7 +24,8 @@ func Start() (err error) {
 	defer errors.Catch(func(re error) {
 		err = re
 	})
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
+	logs.SetDebugMode(Config.Debug)
+	logs.Info("Using config file:", viper.ConfigFileUsed())
 
 	//启动数据库
 	errors.Assert(dao.CreateEngine(Config.DataPath, Config.Database))

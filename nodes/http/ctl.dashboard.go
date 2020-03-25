@@ -3,6 +3,7 @@ package http
 import (
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"github.com/ihaiker/sudis/libs/errors"
 	"github.com/ihaiker/sudis/nodes/cluster"
 	"github.com/ihaiker/sudis/nodes/dao"
@@ -87,7 +88,10 @@ func dashboard(manger *cluster.DaemonManager) interface{} {
 				"all":     all,
 				"started": started,
 			},
-			"info":    &dao.JSON{"CPU": cpu, "RAM": ram},
+			"info": &dao.JSON{
+				"CPU": fmt.Sprintf("%0.4f", cpu),
+				"RAM": ram,
+			},
 			"version": release,
 		}
 	}

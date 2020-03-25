@@ -134,7 +134,7 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 					program := daemon.NewProgram()
 					if err := json.Unmarshal([]byte(arg), program); err != nil {
 						body.WriteString(fmt.Sprintf("\nadd program %s error: %s", program.Name, err))
-					} else if err := errors.SafeExec(func() { dm.MustAddProgram(node, program) }); err != nil {
+					} else if err := dm.AddProgram(node, program); err != nil {
 						body.WriteString(fmt.Sprintf("\nadd program %s error: %s", program.Name, err))
 					} else {
 						body.WriteString(fmt.Sprintf("\nadd program %s ok", program.Name))
@@ -146,7 +146,6 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 			{
 				program := daemon.NewProgram()
 				errors.Assert(json.Unmarshal(request.Body, program))
-
 				name := program.Name
 				p := dm.MustGetProcess(node, program.Name)
 				if p.GetStatus().IsRunning() {
@@ -155,6 +154,7 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 				} else {
 					dm.MustModifyProgram(node, name, program)
 				}
+				response.Body = []byte("OK")
 			}
 		case "tail":
 			{
