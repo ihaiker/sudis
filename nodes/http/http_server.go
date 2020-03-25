@@ -103,6 +103,7 @@ func (self *masterHttpServer) Start() error {
 	if self.webUI {
 		httpStatic(app)
 	}
+	app.Use(iris.StaticCache(time.Hour * 24 * 30))
 
 	Routers(app, self.clusterManger, self.joinManager)
 

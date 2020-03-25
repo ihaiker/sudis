@@ -83,7 +83,7 @@
     import Loadings from "../plugins/loadings";
 
     export default {
-        name: 'DefaultContainer',
+        name: 'AppContainer',
         components: {
             Loadings,
             AppHeader, AppFooter,

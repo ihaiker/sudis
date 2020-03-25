@@ -13,5 +13,10 @@ module.exports = {
     },
     parserOptions: {
         parser: 'babel-eslint'
+    },
+    globals: {
+        'Vue': true,
+        'VueRouter': true,
+        'BootstrapVue': true,
     }
 }

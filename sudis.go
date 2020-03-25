@@ -91,7 +91,7 @@ func main() {
 			cmd.InitDefaultHelpFlag()
 			if len(args) == 0 {
 				os.Args = append(os.Args[:1], append([]string{"node"}, os.Args[1:]...)...)
-			} else if help, err := cmd.Flags().GetBool("help"); err == nil && !help {
+			} else if help, err := cmd.PersistentFlags().GetBool("help"); err == nil && !help {
 				os.Args = append(os.Args[:1], append([]string{"node"}, os.Args[1:]...)...)
 			}
 		}
