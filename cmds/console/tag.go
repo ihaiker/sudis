@@ -15,6 +15,8 @@ sudis [console|cli] tag --delete name tag1
 		request := makeRequest(cmd, "tag", args...)
 		if viper.GetBool("delete") {
 			request.Header("delete", "true")
+		} else if del, err := cmd.PersistentFlags().GetBool("delete"); err == nil && del {
+			request.Header("delete", "true")
 		}
 		sendRequest(cmd, request)
 		return nil

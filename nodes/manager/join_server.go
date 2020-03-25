@@ -37,9 +37,12 @@ func (self *joinServer) checkClientAuth(channel remoting.Channel, request *rpc.R
 			code := string(request.Body)
 			checkCode := fmt.Sprintf("%x", md5.Sum([]byte(timestamp+self.salt+key)))
 			if code == checkCode {
+				if err := self.dm.NodeJoin(NewManager(key, address, self)); err != nil {
+					logger.Warnf("node join key: %s, error: %s", key, err)
+					return rpc.NewErrorResponse(request.ID(), err)
+				}
 				channel.SetAttr("key", key)
 				logger.Infof("node join key: %s, address: %s", key, address)
-				self.dm.NodeJoin(NewManager(key, address, self))
 				return rpc.OK(channel, request)
 			}
 		}

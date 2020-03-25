@@ -38,7 +38,8 @@ var (
 	ErrNotFound       = NewError(iris.StatusBadRequest, "NotFound", "未发现")
 	ErrNotFoundConfig = NewError(iris.StatusBadRequest, "NotFoundConfig", "配置未发现")
 
-	ErrNodeNotFound = NewError(iris.StatusNotFound, "NodeNotFound", "节点未发现！")
+	ErrNodeNotFound  = NewError(iris.StatusNotFound, "NodeNotFound", "节点未发现！")
+	ErrNodeKeyExists = NewError(iris.StatusNotFound, "ErrNodeKeyExists", "节点主键已经存在，不可用！")
 
 	ErrTimeout = NewError(iris.StatusInternalServerError, "ErrTimeout", "运行超时")
 )

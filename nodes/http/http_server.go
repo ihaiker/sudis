@@ -43,7 +43,9 @@ func recoverFn(ctx context.Context) {
 				}
 			default:
 				{
-					ctx.Application().Logger().Error(fmt.Sprintf("%v\n%s", err, errors.Stack()))
+					if tt != errors.ErrAssert {
+						ctx.Application().Logger().Error(fmt.Sprintf("%v\n%s", err, errors.Stack()))
+					}
 					ctx.StatusCode(500)
 					ctx.ContentType("application/json;charset=UTF-8")
 					_, _ = ctx.JSON(&dao.JSON{"error": "InternalServerError", "message": fmt.Sprintf("%v", err)})

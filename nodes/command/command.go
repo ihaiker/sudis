@@ -74,7 +74,7 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 		switch request.URL {
 		case "start", "stop", "delete":
 			names, _ := getArgs(request)
-			body := bytes.NewBufferString("result: \n")
+			body := bytes.NewBufferString("")
 			for _, name := range names {
 				err := dm.Command(node, name, request.URL, timeout)
 				if err != nil {
@@ -129,7 +129,7 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 		case "add":
 			{
 				args, _ := getArgs(request)
-				body := bytes.NewBufferString("result:")
+				body := bytes.NewBufferString("")
 				for _, arg := range args {
 					program := daemon.NewProgram()
 					if err := json.Unmarshal([]byte(arg), program); err != nil {
@@ -193,7 +193,7 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 				addresses, _ := getArgs(request)
 				must, has := request.GetHeader("must")
 
-				out := bytes.NewBufferString("result:\n")
+				out := bytes.NewBufferString("")
 				var err error
 				for _, address := range addresses {
 					if has && must == "true" {
@@ -203,12 +203,21 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 						err = joinManager.Join(address)
 					}
 					if err != nil {
-						out.WriteString(fmt.Sprintf("join %s OK", address))
-					} else {
 						out.WriteString(fmt.Sprintf("join %s %s", address, err.Error()))
+					} else {
+						out.WriteString(fmt.Sprintf("join %s OK", address))
 					}
 				}
 				response.Body = out.Bytes()
+			}
+		case "leave":
+			{
+				address, _ := getArgs(request)
+				if err := joinManager.Leave(address...); err != nil {
+					response.Body = []byte(fmt.Sprintf("leave: %s", err))
+				} else {
+					response.Body = []byte("OK")
+				}
 			}
 		default:
 			response.Error = errors.New("InvalidCommand")

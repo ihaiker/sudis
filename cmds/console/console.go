@@ -87,7 +87,8 @@ var ConsoleCommands = &cobra.Command{
 var Commands = []*cobra.Command{
 	startCmd, statusCmd, stopCmd,
 	listCmd, addCmd, deleteCmd, modifyCmd,
-	detailCmd, tailCmd, tagCommand, joinCmd,
+	detailCmd, tailCmd, tagCommand,
+	joinCmd, leaveCmd,
 }
 
 func addFlags(cmd *cobra.Command) {

@@ -317,8 +317,13 @@ func (self *DaemonManager) OnStatusEvent(event daemon.FSMStatusEvent) {
 	}
 }
 
-func (self *DaemonManager) NodeJoin(dm *NamedDomainManager) {
+func (self *DaemonManager) NodeJoin(dm *NamedDomainManager) error {
 	key := dm.Name
+
+	if d, err := self.Get(key); err == nil && d.Status == dao.NodeStatusOnline {
+		return ErrNodeKeyExists
+	}
+
 	address := dm.Address
 	ip, _, _ := net.SplitHostPort(address)
 	if err := dao.NodeDao.Add(ip, key); err != nil {
@@ -334,6 +339,8 @@ func (self *DaemonManager) NodeJoin(dm *NamedDomainManager) {
 			Status: dao.NodeStatusOnline,
 		})
 	}
+
+	return nil
 }
 
 func (self *DaemonManager) NodeLeave(key, address string) {

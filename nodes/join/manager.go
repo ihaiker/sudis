@@ -2,6 +2,7 @@ package join
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ihaiker/gokit/errors"
 	"github.com/ihaiker/gokit/remoting/rpc"
 	"github.com/ihaiker/sudis/daemon"
@@ -46,6 +47,7 @@ func (self *ToJoinManager) Join(address string) (err error) {
 	if _, has := self.joined[address]; has {
 		return
 	}
+	logger.Info("to join manager: ", address)
 
 	client := newClient(address, self.salt, self.key, self.OnRpcMessage)
 	err = client.Start()
@@ -57,6 +59,26 @@ func (self *ToJoinManager) Join(address string) (err error) {
 	logger.Info("连接主控: ", address)
 	self.joined[address] = client
 	return err
+}
+
+func (self *ToJoinManager) Leave(address ...string) error {
+	if len(address) == 0 {
+		for addr, _ := range self.joined {
+			address = append(address, addr)
+		}
+	}
+	for _, addr := range address {
+		if cli, has := self.joined[addr]; has {
+			logger.Infof("to leave join : %s", addr)
+			if err := cli.Stop(); err != nil {
+				return err
+			}
+			delete(self.joined, addr)
+		} else {
+			return fmt.Errorf("leave %s : not found", addr)
+		}
+	}
+	return nil
 }
 
 func (self *ToJoinManager) OnProgramStatusEvent(event daemon.FSMStatusEvent) {

@@ -3,6 +3,7 @@ package node
 import (
 	"github.com/ihaiker/sudis/libs/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var NodeCommand = &cobra.Command{
@@ -28,4 +29,6 @@ func init() {
 	NodeCommand.PersistentFlags().StringSliceP("join", "", config.Config.Join, "托管连接地址")
 	NodeCommand.PersistentFlags().DurationP("maxwait", "", config.Config.MaxWaitTimeout, "程序关闭最大等待时间")
 	NodeCommand.PersistentFlags().BoolP("notify-sync", "", false, "事件通知是否同步通知。")
+
+	_ = viper.BindPFlags(NodeCommand.PersistentFlags())
 }

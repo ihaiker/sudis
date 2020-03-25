@@ -85,7 +85,6 @@ func main() {
 	defer logs.CloseAll()
 	rand.Seed(time.Now().UnixNano())
 	runtime.GOMAXPROCS(runtime.NumCPU())
-
 	//set node is default command
 	if cmd, args, err := rootCmd.Find(os.Args[1:]); err == nil {
 		if cmd == rootCmd {

@@ -5,8 +5,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-//TODO leave 方法开发，退出托管
-
 var joinCmd = &cobra.Command{
 	Use: "join", Short: "加入主控节点", Long: "将当前节点托管到其他节点管理", Args: cobra.ExactValidArgs(1),
 	Example: "sudis [console|cli] join [--must] <address,...>",
@@ -23,6 +21,16 @@ var joinCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	joinCmd.PersistentFlags().BoolP("must", "", false, "是否要后台重试连接")
+var leaveCmd = &cobra.Command{
+	Use: "leave", Short: "离开主节点", Long: "离开主节点，如果存在多个主节点需要明确指定，否则或全部离开",
+	Example: "sudis [console|cli] leave [address,...]",
+	PreRunE: preRune, PostRun: runPost,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		request := makeRequest(cmd, "leave", args...)
+		if len(args) == 0 {
+			request.Body = []byte("[]")
+		}
+		sendRequest(cmd, request)
+		return nil
+	},
 }
