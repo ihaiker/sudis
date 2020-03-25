@@ -14,6 +14,7 @@ import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/context"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -100,10 +101,18 @@ func NewHttpServer(address string, disableWebUI bool, clusterManger *cluster.Dae
 }
 
 func (self *masterHttpServer) Start() error {
+	cache := iris.Cache304(time.Hour * 24 * 30)
+	app.UseGlobal(func(ctx iris.Context) {
+		if strings.HasPrefix(ctx.Path(), "/static") {
+			cache(ctx)
+		} else {
+			ctx.Next()
+		}
+	})
+
 	if self.webUI {
 		httpStatic(app)
 	}
-	app.Use(iris.StaticCache(time.Hour * 24 * 30))
 
 	Routers(app, self.clusterManger, self.joinManager)
 
