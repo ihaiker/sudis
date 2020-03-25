@@ -29,9 +29,6 @@ var rootCmd = &cobra.Command{
 	Use: filepath.Base(os.Args[0]), Version: fmt.Sprintf(" %s ", VERSION),
 	Long: fmt.Sprintf(`SUDIS V3, 一个分布式进程控制程序。
 Build: %s, Go: %s, GitLog: %s`, BUILD_TIME, runtime.Version(), GITLOG_VERSION),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return node.Start()
-	},
 }
 
 func init() {
@@ -70,24 +67,11 @@ func init() {
 		config.Config.DataPath = os.ExpandEnv(config.Config.DataPath)
 	})
 
-	rootCmd.PersistentFlags().StringP("conf", "f", "", "配置文件")
 	rootCmd.PersistentFlags().BoolP("debug", "d", config.Config.Debug, "Debug模式")
-	rootCmd.PersistentFlags().StringP("key", "", config.Config.Key, "节点唯一ID")
-	rootCmd.PersistentFlags().StringP("address", "", config.Config.Address, "API绑定地址")
-	rootCmd.PersistentFlags().BoolP("disable-webui", "", config.Config.DisableWebUI, "禁用webui")
 
-	rootCmd.PersistentFlags().StringP("data-path", "", config.Config.DataPath, "数据存储位置 (default: $HOME/.sudis)")
-	rootCmd.PersistentFlags().StringP("database.type", "", config.Config.Database.Type, "数据存储方式")
-	rootCmd.PersistentFlags().StringP("database.url", "", config.Config.Database.Url, "数据存储地址")
-
-	rootCmd.PersistentFlags().StringP("salt", "", config.Config.Salt, "安全加密盐值")
-	rootCmd.PersistentFlags().String("manager", config.Config.Manager, "管理托管绑定地址")
-	rootCmd.PersistentFlags().StringSliceP("join", "", config.Config.Join, "托管连接地址")
-	rootCmd.PersistentFlags().DurationP("maxwait", "", config.Config.MaxWaitTimeout, "程序关闭最大等待时间")
-	rootCmd.PersistentFlags().BoolP("notify-sync", "", false, "事件通知是否同步通知。")
-
-	rootCmd.AddCommand(console.ConsoleCommands)
+	rootCmd.AddCommand(node.NodeCommand)
 	rootCmd.AddCommand(console.Commands...)
+	rootCmd.AddCommand(console.ConsoleCommands)
 	rootCmd.AddCommand(initd.Cmd)
 	_ = viper.BindPFlags(rootCmd.PersistentFlags())
 
@@ -101,6 +85,18 @@ func main() {
 	defer logs.CloseAll()
 	rand.Seed(time.Now().UnixNano())
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	//set node is default command
+	if cmd, args, err := rootCmd.Find(os.Args[1:]); err == nil {
+		if cmd == rootCmd {
+			cmd.InitDefaultHelpFlag()
+			if len(args) == 0 {
+				os.Args = append(os.Args[:1], append([]string{"node"}, os.Args[1:]...)...)
+			} else if help, err := cmd.Flags().GetBool("help"); err == nil && !help {
+				os.Args = append(os.Args[:1], append([]string{"node"}, os.Args[1:]...)...)
+			}
+		}
+	}
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

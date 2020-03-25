@@ -16,7 +16,7 @@ var modifyCmd = &cobra.Command{
 cat jsonfile | sudis [console] modify <programName>`,
 	PreRunE: preRune, PostRun: runPost,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		request := makeRequest("modify")
+		request := makeRequest(cmd, "modify")
 
 		var content []byte
 		if len(args) == 2 {
@@ -42,7 +42,7 @@ cat jsonfile | sudis [console] modify <programName>`,
 		program.Name = args[0]
 		request.Body, _ = json.Marshal(program)
 
-		sendRequest(request)
+		sendRequest(cmd, request)
 		return nil
 	},
 }

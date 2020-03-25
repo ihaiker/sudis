@@ -9,7 +9,7 @@ var statusCmd = &cobra.Command{
 	Example: "sudis [console] status <programName>",
 	PreRunE: preRune, PostRun: runPost,
 	Run: func(cmd *cobra.Command, args []string) {
-		request := makeRequest("status", args...)
-		sendRequest(request)
+		request := makeRequest(cmd, "status", args...)
+		sendRequest(cmd, request)
 	},
 }

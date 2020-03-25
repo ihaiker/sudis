@@ -31,6 +31,8 @@ func preRune(cmd *cobra.Command, args []string) (err error) {
 	sockCfg := filepath.Join(config.Config.DataPath, "sudis.sock")
 	if param := viper.GetString("sock"); param != "" {
 		sockCfg = param
+	} else if param, err := cmd.Flags().GetString("sock"); err == nil && param != "" {
+		sockCfg = param
 	}
 	sock, _ := filepath.Abs(sockCfg)
 	sock = "unix:/" + sock
@@ -47,10 +49,12 @@ func runPost(cmd *cobra.Command, args []string) {
 	_ = client.Close()
 }
 
-func makeRequest(cmd string, body ...string) *rpc.Request {
+func makeRequest(cmd *cobra.Command, command string, body ...string) *rpc.Request {
 	request := new(rpc.Request)
-	request.URL = cmd
+	request.URL = command
 	if node := viper.GetString("node"); node != "" {
+		request.Header("node", node)
+	} else if node, err := cmd.Flags().GetString("node"); err == nil && node != "" {
 		request.Header("node", node)
 	}
 	if len(body) > 0 {
@@ -59,9 +63,10 @@ func makeRequest(cmd string, body ...string) *rpc.Request {
 	return request
 }
 
-func sendRequest(request *rpc.Request, disablePrintln ...bool) *rpc.Response {
+func sendRequest(cmd *cobra.Command, request *rpc.Request, disablePrintln ...bool) *rpc.Response {
 	seconds := viper.GetDuration("timeout")
 	request.Header("timeout", fmt.Sprintf("%.0f", seconds.Seconds()))
+
 	resp := client.Send(request, seconds)
 	if len(disablePrintln) > 0 && disablePrintln[0] {
 		//
@@ -88,15 +93,14 @@ var Commands = []*cobra.Command{
 func addFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringP("sock", "s", "", "连接服务端sock地址.(default: ${data-path}/sudis.sock)")
 	cmd.PersistentFlags().DurationP("timeout", "t", time.Second*15, "wait timeout")
-	cmd.PersistentFlags().StringP("node", "k", "", "执行的节点")
+	cmd.PersistentFlags().StringP("node", "", "", "执行的节点")
 }
 
 func init() {
-	for _, cmd := range Commands {
-		addFlags(cmd)
-		_ = viper.BindPFlags(cmd.PersistentFlags())
+	for _, command := range Commands {
+		addFlags(command)
+		ConsoleCommands.AddCommand(command)
+		_ = viper.BindPFlags(command.PersistentFlags())
 	}
-	addFlags(ConsoleCommands)
-	ConsoleCommands.AddCommand(Commands...)
 	_ = viper.BindPFlags(ConsoleCommands.PersistentFlags())
 }

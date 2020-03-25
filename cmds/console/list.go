@@ -13,7 +13,7 @@ var listCmd = &cobra.Command{
 	Example: "sudis [console] list --inspect",
 	PreRunE: preRune, PostRun: runPost,
 	Run: func(cmd *cobra.Command, args []string) {
-		request := makeRequest("list")
+		request := makeRequest(cmd, "list")
 		if viper.GetBool("inspect") {
 			request.Header("inspect", "true")
 		}
@@ -24,7 +24,7 @@ var listCmd = &cobra.Command{
 			request.Header("quiet", "true")
 		}
 
-		resp := sendRequest(request, true)
+		resp := sendRequest(cmd, request, true)
 		if resp.Error != nil {
 			fmt.Println(resp.Error)
 		} else if viper.GetBool("inspect") {

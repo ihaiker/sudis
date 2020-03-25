@@ -11,11 +11,11 @@ var deleteCmd = &cobra.Command{
 	Example: "sudis [console] delete <programName,...>",
 	PreRunE: preRune, PostRun: runPost,
 	Run: func(cmd *cobra.Command, args []string) {
-		request := makeRequest("delete", args...)
+		request := makeRequest(cmd, "delete", args...)
 		if viper.GetBool("skip") {
 			request.Header("skip", strconv.FormatBool(true))
 		}
-		sendRequest(request)
+		sendRequest(cmd, request)
 	},
 }
 

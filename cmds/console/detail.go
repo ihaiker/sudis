@@ -10,7 +10,7 @@ var detailCmd = &cobra.Command{
 	Example: "sudis [console] detail <programName>",
 	PreRunE: preRune, PostRun: runPost,
 	Run: func(cmd *cobra.Command, args []string) {
-		request := makeRequest("detail", args...)
-		sendRequest(request)
+		request := makeRequest(cmd, "detail", args...)
+		sendRequest(cmd, request)
 	},
 }

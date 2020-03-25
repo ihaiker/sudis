@@ -12,11 +12,11 @@ sudis [console|cli] tag --delete name tag1
 `,
 	PreRunE: preRune, PostRun: runPost,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		request := makeRequest("tag", args...)
+		request := makeRequest(cmd, "tag", args...)
 		if viper.GetBool("delete") {
 			request.Header("delete", "true")
 		}
-		sendRequest(request)
+		sendRequest(cmd, request)
 		return nil
 	},
 }

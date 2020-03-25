@@ -9,7 +9,7 @@ var stopCmd = &cobra.Command{
 	Example: "sudis [console] stop <programName>",
 	PreRunE: preRune, PostRun: runPost,
 	Run: func(cmd *cobra.Command, args []string) {
-		request := makeRequest("stop", args...)
-		sendRequest(request)
+		request := makeRequest(cmd, "stop", args...)
+		sendRequest(cmd, request)
 	},
 }

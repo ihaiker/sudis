@@ -27,16 +27,16 @@ var tailCmd = &cobra.Command{
 		subId := strings.ReplaceAll(subscribeId.String(), "-", "")
 
 		//订阅成功就可以，在启动客户端连接的试试已经做好了日志的打印
-		request := makeRequest("tail", name, SUBSCRIBE, subId)
+		request := makeRequest(cmd, "tail", name, SUBSCRIBE, subId)
 		request.Header("num", strconv.Itoa(viper.GetInt("num")))
-		if response := sendRequest(request); response.Error != nil {
+		if response := sendRequest(cmd, request); response.Error != nil {
 			fmt.Println(response.Error)
 			return nil
 		}
 
 		kill := runtimeKit.NewListener()
 		kill.AddStop(func() error {
-			resp := sendRequest(makeRequest("tail", name, UNSUBSCRIBE, subId))
+			resp := sendRequest(cmd, makeRequest(cmd, "tail", name, UNSUBSCRIBE, subId))
 			return resp.Error
 		})
 		return kill.WaitTimeout(config.Config.MaxWaitTimeout)

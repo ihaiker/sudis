@@ -32,8 +32,8 @@ cat jsonfile | sudis [console] add`,
 			return errors.New("json file not found")
 		}
 
-		request := makeRequest("add", programs...)
-		sendRequest(request)
+		request := makeRequest(cmd, "add", programs...)
+		sendRequest(cmd, request)
 		return nil
 	},
 }

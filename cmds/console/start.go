@@ -9,7 +9,7 @@ var startCmd = &cobra.Command{
 	Example: "sudis [console] start <programName>",
 	PreRunE: preRune, PostRun: runPost,
 	Run: func(cmd *cobra.Command, args []string) {
-		request := makeRequest("start", args...)
-		sendRequest(request)
+		request := makeRequest(cmd, "start", args...)
+		sendRequest(cmd, request)
 	},
 }
