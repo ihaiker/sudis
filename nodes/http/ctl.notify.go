@@ -21,6 +21,11 @@ func (self *NotifyController) get(ctx iris.Context) *dao.Notify {
 	return notify
 }
 
+func (self *NotifyController) delete(name string) int {
+	errors.Assert(dao.NotifyDao.Remove(name), "删除通知配置异常")
+	return iris.StatusNoContent
+}
+
 func (self *NotifyController) modity(ctx iris.Context) int {
 	notify := new(dao.Notify)
 	errors.Assert(ctx.ReadJSON(notify))

@@ -68,6 +68,7 @@ func Routers(app *iris.Application, clusterManger *cluster.DaemonManager, joinMa
 			notify.Get("/{name}", h.Handler(ctl.get))
 			notify.Post("/test", h.Handler(ctl.test))
 			notify.Post("", h.Handler(ctl.modity))
+			notify.Delete("/{name}", h.Handler(ctl.delete))
 		}
 
 		admin.Any("/join", h.Handler(func(ctx iris.Context) int {

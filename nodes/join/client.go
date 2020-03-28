@@ -7,6 +7,7 @@ import (
 	"github.com/ihaiker/gokit/logs"
 	"github.com/ihaiker/gokit/remoting"
 	"github.com/ihaiker/gokit/remoting/rpc"
+	"math"
 	"time"
 )
 
@@ -34,17 +35,23 @@ func (self *joinClient) reconnect(channel remoting.Channel) {
 	}
 
 	go func() {
-		logger.Info("与主控节点断开，重新连接")
-		_ = errors.Safe(self.client.Close)
-		for !self.shutdown {
-			time.Sleep(time.Second * 3)
-			logger.Debug("尝试连接主控节点")
+		maxWaitSeconds := 5 * 60
+		logger.Debug("尝试连接主控节点")
+		for i := 0; !self.shutdown; i++ {
+			_ = errors.Safe(self.client.Close)
+
 			if err := self.Start(); err == nil {
 				logger.Info("重连与TCP主控节点连接成功：", self.address)
 				return
 			} else {
 				logger.Warn("重连主控节点异常：", err)
 			}
+
+			seconds := int(math.Pow(2, float64(i)))
+			if seconds > maxWaitSeconds {
+				seconds = maxWaitSeconds
+			}
+			time.Sleep(time.Second * time.Duration(seconds))
 		}
 	}()
 }
@@ -66,7 +73,6 @@ func (self *joinClient) authRequest() *rpc.Request {
 
 func (self *joinClient) Start() (err error) {
 	self.shutdown = false
-	logger.Infof("连接主控节点：%s", self.address)
 	if err = self.client.Start(); err != nil {
 		return
 	}

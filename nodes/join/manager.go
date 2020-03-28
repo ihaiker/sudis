@@ -35,8 +35,9 @@ func (self *ToJoinManager) MustJoinIt(address string) {
 			if seconds > maxWaitSeconds {
 				seconds = maxWaitSeconds
 			}
-			time.Sleep(time.Second * time.Duration(maxWaitSeconds))
-			logger.Debug("重试连接主控节点：", address)
+			next := time.Second * time.Duration(seconds)
+			logger.Debugf("%s 重试连接主控节点：%s", next.String(), address)
+			time.Sleep(next)
 		}
 	}()
 }
@@ -47,16 +48,14 @@ func (self *ToJoinManager) Join(address string) (err error) {
 	if _, has := self.joined[address]; has {
 		return
 	}
-	logger.Info("to join manager: ", address)
-
+	logger.Infof("连接主控节点：%s", address)
 	client := newClient(address, self.salt, self.key, self.OnRpcMessage)
 	err = client.Start()
 	if err != nil {
-		_ = errors.Safe(client.Stop)
 		logger.Warn("连接主控异常：", err)
+		_ = errors.Safe(client.Stop)
 		return
 	}
-	logger.Info("连接主控: ", address)
 	self.joined[address] = client
 	return err
 }

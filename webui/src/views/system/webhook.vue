@@ -22,6 +22,9 @@
             <div class="input-group-append">
                 <button class="btn btn-block btn-vine" style="width: 120px" @click="testConfig">测试</button>
             </div>
+            <div class="input-group-append">
+                <button class="btn btn-outline-danger" style="width: 120px" @click="clearConfig">清除</button>
+            </div>
         </div>
         <div class="alert alert-info mt-2">
             通知模板：<span v-if="address">{{address}}?access_token={{token}}</span>
@@ -56,6 +59,17 @@
                 }).catch(e => {
                     self.$toast.error("WebHock" + e.message);
                 })
+            },
+            clearConfig(){
+                let self = this;
+                self.$axios.delete("/admin/notify/webhook").then(res => {
+                    self.$toast.success('清除成功！');
+                    self.address = "";
+                    self.token = "";
+                    self.content = "";
+                }).catch(e => {
+                    self.$toast.error("email" + e.message);
+                });
             },
             execConfig(uri) {
                 let self = this;

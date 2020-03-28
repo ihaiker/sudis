@@ -4,6 +4,8 @@ import (
 	"github.com/ihaiker/sudis/libs/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
+	"strings"
 )
 
 var NodeCommand = &cobra.Command{
@@ -31,4 +33,45 @@ func init() {
 	NodeCommand.PersistentFlags().BoolP("notify-sync", "", false, "事件通知是否同步通知。")
 
 	_ = viper.BindPFlags(NodeCommand.PersistentFlags())
+}
+
+func SetDefaultCommand(root *cobra.Command) {
+	setDef := NodeCommand
+	//set node is default command
+	if runCommand, args, err := root.Find(os.Args[1:]); err == nil {
+		if runCommand == root {
+			runCommand.InitDefaultHelpFlag()
+			if help, err := runCommand.PersistentFlags().GetBool("help"); err == nil && help {
+				//show help
+			} else {
+				idx := 1
+				for _, arg := range args {
+					if strings.HasPrefix(arg, "-") {
+						flagName := strings.TrimLeft(arg, "-")
+						hasValue := strings.Index(flagName, "=")
+						if hasValue > 0 {
+							flagName = flagName[:hasValue]
+						}
+						if f := root.PersistentFlags().Lookup(flagName); f != nil {
+							if f.Value.Type() == "bool" || hasValue > 0 {
+								idx += 1
+							} else if f.Value.String() != "" {
+								idx += 2
+							}
+							continue
+						} else if f = root.PersistentFlags().ShorthandLookup(flagName); f != nil {
+							if f.Value.Type() == "bool" || hasValue > 0 {
+								idx += 1
+							} else if f.Value.String() != "" {
+								idx += 2
+							}
+							continue
+						}
+					}
+					break
+				}
+				os.Args = append(os.Args[:idx], append([]string{setDef.Name()}, os.Args[idx:]...)...)
+			}
+		}
+	}
 }

@@ -85,18 +85,7 @@ func main() {
 	defer logs.CloseAll()
 	rand.Seed(time.Now().UnixNano())
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	//set node is default command
-	if cmd, args, err := rootCmd.Find(os.Args[1:]); err == nil {
-		if cmd == rootCmd {
-			cmd.InitDefaultHelpFlag()
-			if len(args) == 0 {
-				os.Args = append(os.Args[:1], append([]string{"node"}, os.Args[1:]...)...)
-			} else if help, err := cmd.PersistentFlags().GetBool("help"); err == nil && !help {
-				os.Args = append(os.Args[:1], append([]string{"node"}, os.Args[1:]...)...)
-			}
-		}
-	}
-
+	node.SetDefaultCommand(rootCmd)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

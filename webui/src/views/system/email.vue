@@ -1,68 +1,49 @@
 <template>
     <div>
         <div class="alert alert-info">邮件服务器配置</div>
-        <div class="row ">
-            <div class="col-4 form-group">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-user"/> SMTP服务地址：
-                        </span>
-                    </div>
-                    <input class="form-control" v-model="address" type="text" placeholder="SMTP地址"/>
-                </div>
+
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    <i class="fa fa-user"/> SMTP服务地址：
+                </span>
             </div>
-            <div class="col-4 form-group">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-envelope"/>
-                        </span>
-                    </div>
-                    <input class="form-control" v-model="port" type="number" placeholder="SMTP端口号"/>
-                </div>
+            <input class="form-control" v-model="address" type="text" placeholder="SMTP地址"/>
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    <i class="fa fa-envelope"/>
+                </span>
             </div>
-            <div class="col-4">
-                <button class="btn btn-primary w-25" @click="setConfig">设置</button>
+            <input class="form-control" v-model="port" type="number" placeholder="SMTP端口号"/>
+            <div class="input-group-append">
+                <button class="btn btn-primary" @click="setConfig"> 设 置</button>
             </div>
-            <div class="col"></div>
+            <div class="input-group-append">
+                <button class="btn btn-dark" @click="clearConfig">清除设置</button>
+            </div>
         </div>
 
-        <div class="row">
-            <div class="col form-group">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-user"/>&nbsp;用户名
-                        </span>
-                    </div>
-                    <input class="form-control" v-model="name" type="text" placeholder="Username">
-                </div>
+        <div class="input-group mt-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    <i class="fa fa-user"/>&nbsp;用户名
+                </span>
             </div>
-            <div class="col form-group">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-asterisk"/>&nbsp;密码
-                        </span>
-                    </div>
-                    <input class="form-control" v-model="passwd" type="text" placeholder="Password">
-                </div>
+            <input class="form-control" v-model="name" type="text" placeholder="Username">
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    <i class="fa fa-asterisk"/>&nbsp;密码
+                </span>
             </div>
-            <div class="col">
-                <button class="btn btn-tumblr w-25" @click="testConfig">测试</button>
+            <input class="form-control" v-model="passwd" type="text" placeholder="Password">
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    <i class="fa fa-user"/>&nbsp;接收用户
+                </span>
             </div>
-        </div>
-        <div class="row">
-            <div class="col form-group">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-user"/>&nbsp;接收用户
-                        </span>
-                    </div>
-                    <input class="form-control" v-model="to" type="text" placeholder="接收用户">
-                </div>
+            <input class="form-control" v-model="to" type="text" placeholder="接收用户">
+            <div class="input-group-append">
+                <button class="btn btn-tumblr w-100" @click="testConfig">测试</button>
             </div>
         </div>
 
@@ -119,6 +100,19 @@
             },
             setConfig() {
                 this.execConfig("/admin/notify");
+            },
+            clearConfig() {
+                let self = this;
+                self.$axios.delete("/admin/notify/email").then(res => {
+                    self.$toast.success('清除成功！');
+                    self.address = "";
+                    self.name = "";
+                    self.passwd = "";
+                    self.content = "";
+                    self.to = "";
+                }).catch(e => {
+                    self.$toast.error("email" + e.message);
+                });
             },
             execConfig(uri) {
                 let self = this;
