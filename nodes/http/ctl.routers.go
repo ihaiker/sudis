@@ -4,6 +4,7 @@ import (
 	"github.com/ihaiker/gokit/errors"
 	"github.com/ihaiker/sudis/nodes/cluster"
 	"github.com/ihaiker/sudis/nodes/dao"
+	"github.com/ihaiker/sudis/nodes/http/auth"
 	"github.com/ihaiker/sudis/nodes/join"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/hero"
@@ -18,10 +19,10 @@ func Routers(app *iris.Application, clusterManger *cluster.DaemonManager, joinMa
 		return data
 	})
 
-	userCtl := &UserController{}
-	app.Post("/login", h.Handler(userCtl.login))
+	authService := auth.NewService()
+	app.Post("/login", h.Handler(authService.Login))
 
-	admin := app.Party("/admin", authed)
+	admin := app.Party("/admin", authService.Check)
 	{
 		admin.Get("/dashboard", h.Handler(dashboard(clusterManger)))
 
@@ -56,6 +57,7 @@ func Routers(app *iris.Application, clusterManger *cluster.DaemonManager, joinMa
 
 		user := admin.Party("/user")
 		{
+			userCtl := &UserController{}
 			user.Get("/list", h.Handler(userCtl.queryUser))
 			user.Post("/add", h.Handler(userCtl.addUser))
 			user.Delete("/{name}", h.Handler(userCtl.deleteUser))

@@ -81,6 +81,16 @@ func newApplication() *iris.Application {
 	app.UseGlobal(crs)
 
 	app.Use(recoverFn)
+
+	cache := iris.Cache304(time.Hour * 24 * 30)
+	app.UseGlobal(func(ctx iris.Context) {
+		if strings.HasPrefix(ctx.Path(), "/static") {
+			cache(ctx)
+		} else {
+			ctx.Next()
+		}
+	})
+
 	return app
 }
 
@@ -101,15 +111,6 @@ func NewHttpServer(address string, disableWebUI bool, clusterManger *cluster.Dae
 }
 
 func (self *masterHttpServer) Start() error {
-	cache := iris.Cache304(time.Hour * 24 * 30)
-	app.UseGlobal(func(ctx iris.Context) {
-		if strings.HasPrefix(ctx.Path(), "/static") {
-			cache(ctx)
-		} else {
-			ctx.Next()
-		}
-	})
-
 	if self.webUI {
 		httpStatic(app)
 	}

@@ -44,6 +44,6 @@ export default new VueRouter({
                 {path: '*', redirect: 'dashboard'}
             ]
         },
-        {path: '*', redirect: '/signin'}
+        {path: '*', redirect: '/admin'}
     ]
 })

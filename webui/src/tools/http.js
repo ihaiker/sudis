@@ -5,12 +5,14 @@ import main from '../main'
 axios.defaults.baseURL = process.env.VUE_APP_URL;
 axios.defaults.timeout = 15000;
 axios.defaults.withCredentials = true;
-axios.defaults.headers.post['Content-Type'] = 'application/json;charse=UTF-8';
+axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 
 // 添加请求拦截器
 axios.interceptors.request.use(function (config) {
-    config.headers['x-ticket'] = localStorage.getItem('x-ticket');
-    config.headers['x-user'] = localStorage.getItem('x-user');
+    let token = localStorage.getItem('token');
+    if (token) {
+        config.headers['Authorization'] = token;
+    }
     return config
 });
 
@@ -23,9 +25,12 @@ axios.interceptors.response.use((response) => {
 }, function (err) {
     if (err.response) {
         if (err.response.status === 401) {
-            localStorage.removeItem("x-ticket");
-            localStorage.removeItem("x-user");
-            main.$router.push({path: '/login', replace: true});
+            localStorage.removeItem("token");
+            if (err.response.data && err.response.data.redirect) {
+                window.location.href = err.response.data.redirect;
+            } else {
+                main.$router.push({path: '/signin', replace: true});
+            }
         } else {
             return Promise.reject(err.response.data)
         }

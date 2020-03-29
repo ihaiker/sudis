@@ -109,8 +109,7 @@
                 }
             },
             logout() {
-                localStorage.removeItem("x-user");
-                localStorage.removeItem("x-ticket");
+                localStorage.removeItem("token");
                 this.$router.push({path: "/login"});
             }
         },

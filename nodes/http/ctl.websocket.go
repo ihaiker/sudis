@@ -26,17 +26,11 @@ func NewLoggerController(manger *cluster.DaemonManager) *LoggerController {
 				_ = client.EmitMessage([]byte("认证信息错误！！！"))
 				return
 			}
-			user := params.String("user")
-			ticket := params.String("ticket")
+			//token := params.String("token")
 			name := params.String("name")
 			node := params.String("node")
 			line := params.Int("line", 30)
 			uid := strings.ReplaceAll(client.ID(), "-", "")
-
-			if generatorAuth(user).String("token") != ticket {
-				_ = client.EmitMessage([]byte("认证信息错误！！！"))
-				return
-			}
 
 			client.OnDisconnect(func() {
 				logger.Debugf("取消订阅日志：%s,%s,%s ", name, node, uid)

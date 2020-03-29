@@ -15,17 +15,20 @@
                                         <b-input-group-prepend>
                                             <b-input-group-text><i class="icon-user"></i></b-input-group-text>
                                         </b-input-group-prepend>
-                                        <b-form-input type="text" class="form-control" placeholder="Username" v-model="name"/>
+                                        <b-form-input type="text" class="form-control" placeholder="Username"
+                                                      v-model="name"/>
                                     </b-input-group>
                                     <b-input-group class="mb-4">
                                         <b-input-group-prepend>
                                             <b-input-group-text><i class="icon-lock"></i></b-input-group-text>
                                         </b-input-group-prepend>
-                                        <b-form-input type="password" class="form-control" placeholder="Password" v-model="passwd"/>
+                                        <b-form-input type="password" class="form-control" placeholder="Password"
+                                                      v-model="passwd"/>
                                     </b-input-group>
                                     <b-row>
                                         <b-col cols="6">
-                                            <b-button variant="primary" class="px-4 btn-block" @click="login">Login</b-button>
+                                            <b-button variant="primary" class="px-4 btn-block" @click="login">Login
+                                            </b-button>
                                         </b-col>
                                         <b-col cols="6" class="text-right">
                                             <!--<b-button variant="link" class="px-0">Forgot password?</b-button>-->
@@ -40,7 +43,8 @@
                                     <img src="@/assets/images/logo2.png" style="width: 3rem;"/>
                                     <h4>Sudis</h4>
                                     <p>Distributed supervisor process control system .</p>
-                                    <a href="https://github.com/ihaiker/sudis" target="_blank" class="btn btn-primary active mt-3">Read More!</a>
+                                    <a href="https://github.com/ihaiker/sudis" target="_blank"
+                                       class="btn btn-primary active mt-3">Read More!</a>
                                 </div>
                             </b-card-body>
                         </b-card>
@@ -58,12 +62,18 @@
             name: "",
             passwd: "",
         }),
+        mounted() {
+            let token = localStorage.getItem("token");
+            if (token) {
+                this.$router.push("/admin/dashboard")
+            }
+        },
         methods: {
             login() {
                 let self = this;
                 self.$axios.post("/login", {name: self.name, passwd: self.passwd}).then(res => {
-                    localStorage.setItem("x-user", res.user);
-                    localStorage.setItem("x-ticket", res.token);
+                    let token = res.token;
+                    localStorage.setItem("token", token);
                     self.$toast.success('登录成功！');
                     self.$router.push("/admin/dashboard")
                 }).catch(e => {
