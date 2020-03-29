@@ -40,9 +40,11 @@ func SetDefaultCommand(root *cobra.Command) {
 	//set node is default command
 	if runCommand, args, err := root.Find(os.Args[1:]); err == nil {
 		if runCommand == root {
-			runCommand.InitDefaultHelpFlag()
-			if help, err := runCommand.PersistentFlags().GetBool("help"); err == nil && help {
-				//show help
+			root.InitDefaultHelpFlag()
+			_ = root.ParseFlags(args)
+
+			if help, err := root.Flags().GetBool("help"); err == nil && help {
+				// show help
 			} else {
 				idx := 1
 				for _, arg := range args {
@@ -59,18 +61,21 @@ func SetDefaultCommand(root *cobra.Command) {
 								idx += 2
 							}
 							continue
-						} else if f = root.PersistentFlags().ShorthandLookup(flagName); f != nil {
-							if f.Value.Type() == "bool" || hasValue > 0 {
-								idx += 1
-							} else if f.Value.String() != "" {
-								idx += 2
+						}
+						if len(flagName) == 1 {
+							if f := root.PersistentFlags().ShorthandLookup(flagName); f != nil {
+								if f.Value.Type() == "bool" || hasValue > 0 {
+									idx += 1
+								} else if f.Value.String() != "" {
+									idx += 2
+								}
+								continue
 							}
-							continue
 						}
 					}
 					break
 				}
-				os.Args = append(os.Args[:idx], append([]string{setDef.Name()}, os.Args[idx:]...)...)
+				root.SetArgs(append(os.Args[1:idx], append([]string{setDef.Name()}, os.Args[idx:]...)...))
 			}
 		}
 	}
