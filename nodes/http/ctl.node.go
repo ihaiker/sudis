@@ -17,6 +17,17 @@ func (self *NodeController) queryNodeList() []*dao.Node {
 	return self.clusterManger.QueryNode()
 }
 
+func (self *NodeController) addOrModifyNodeToken(json *dao.JSON) int {
+	key := json.String("key")
+	errors.True(key != "", ErrNodeIsEmpty)
+
+	token := json.String("token")
+	errors.True(token != "", ErrNodeIsEmpty)
+
+	errors.Assert(self.clusterManger.ModifyNodeToken(key, token))
+	return iris.StatusNoContent
+}
+
 func (self *NodeController) modifyNodeTag(json *dao.JSON) int {
 
 	key := json.String("key")
@@ -27,7 +38,7 @@ func (self *NodeController) modifyNodeTag(json *dao.JSON) int {
 	}
 	tag := json.String("tag")
 
-	self.clusterManger.ModifyNodeTag(key, tag)
+	errors.Assert(self.clusterManger.ModifyNodeTag(key, tag))
 
 	return iris.StatusNoContent
 }

@@ -11,6 +11,7 @@ type (
 	Node struct {
 		Tag        string     `json:"tag" xorm:"tag"`
 		Key        string     `json:"key" xorm:"varchar(32) notnull pk 'key'"`
+		Token      string     `json:"token" xorm:"token"`
 		Ip         string     `json:"ip" xorm:"ip"`
 		Address    string     `json:"address" xorm:"address"`
 		ProgramNum int        `json:"programNum" xorm:"programNum"`
@@ -32,7 +33,20 @@ func (self *nodeDao) List() (nodes []*Node, err error) {
 	return
 }
 
-func (self *nodeDao) Add(ip, key string) error {
+//添加新节点token
+func (self *nodeDao) ModifyToken(key, token string) error {
+	if _, has, err := self.Get(key); err != nil {
+		return err
+	} else if has {
+		_, err := engine.Update(&Node{Token: token, Time: Timestamp()}, &Node{Key: key})
+		return err
+	} else {
+		_, err := engine.InsertOne(&Node{Key: key, Token: token, Time: Timestamp(), Status: NodeStatusOutline})
+		return err
+	}
+}
+
+func (self *nodeDao) Join(ip, key string) error {
 	if node, has, err := self.Get(key); err != nil {
 		return err
 	} else if !has {

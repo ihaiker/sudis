@@ -2,6 +2,8 @@ package http
 
 import (
 	"github.com/ihaiker/gokit/errors"
+	"github.com/ihaiker/sudis/libs/config"
+	. "github.com/ihaiker/sudis/libs/errors"
 	"github.com/ihaiker/sudis/nodes/cluster"
 	"github.com/ihaiker/sudis/nodes/dao"
 	"github.com/ihaiker/sudis/nodes/http/auth"
@@ -29,6 +31,7 @@ func Routers(app *iris.Application, clusterManger *cluster.DaemonManager, joinMa
 		node := admin.Party("/node")
 		{
 			ctl := &NodeController{clusterManger: clusterManger}
+			node.Post("/token", h.Handler(ctl.addOrModifyNodeToken))
 			node.Get("/list", h.Handler(ctl.queryNodeList)) //列表
 			node.Post("/tag", h.Handler(ctl.modifyNodeTag)) //打标签
 			node.Delete("/{key}", h.Handler(ctl.removeNode))
@@ -79,11 +82,17 @@ func Routers(app *iris.Application, clusterManger *cluster.DaemonManager, joinMa
 			_, _, err := net.SplitHostPort(address)
 			errors.Assert(err, "加入地址错误")
 
+			token := ctx.URLParamTrim("token")
+			if token == "" {
+				token = config.Config.Salt
+			}
+			errors.True(token == "", ErrToken.Error())
+
 			must := ctx.URLParamTrim("must")
 			if must == "true" {
-				joinManager.MustJoinIt(address)
+				joinManager.MustJoinIt(address, token)
 			} else {
-				errors.Assert(joinManager.Join(address))
+				errors.Assert(joinManager.Join(address, token))
 			}
 			return iris.StatusNoContent
 		}))

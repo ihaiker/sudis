@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func Start() (err error) {
@@ -56,7 +57,7 @@ func Start() (err error) {
 
 func makeDaemonManager(signal *runtimeKit.SignalListener) *cluster.DaemonManager {
 	localDaemon := daemon.NewDaemonManager(filepath.Join(Config.DataPath, "programs"), Config.Key)
-	clusterManger := cluster.NewDaemonManger(Config.Key, localDaemon)
+	clusterManger := cluster.NewDaemonManger(Config.Key, Config.Salt, localDaemon)
 	signal.Add(clusterManger)
 	return clusterManger
 }
@@ -72,8 +73,16 @@ func makeSockConsoleListener(signal *runtimeKit.SignalListener, daemonManger *cl
 func makeJoinManager(signal *runtimeKit.SignalListener, joinManager *join.ToJoinManager) {
 	signal.Add(joinManager)
 	signal.AddStart(func() error {
-		for _, address := range Config.Join {
-			joinManager.MustJoinIt(address)
+		for _, joinAttr := range Config.Join {
+			addressAndToken := strings.SplitN(joinAttr, ",", 2)
+			if len(addressAndToken) == 1 {
+				if Config.Salt == "" {
+					logs.Warnf("ignore to join %s. flag `--slat` and token is empty", joinAttr)
+					continue
+				}
+				addressAndToken = append(addressAndToken, Config.Salt)
+			}
+			joinManager.MustJoinIt(addressAndToken[0], addressAndToken[1])
 		}
 		return nil
 	})

@@ -14,16 +14,14 @@ import (
 var logger = logs.GetLogger("join")
 
 type joinClient struct {
-	client                     rpc.RpcClient
-	address, key, securitySalt string
-	shutdown                   bool
+	client              rpc.RpcClient
+	address, key, token string
+	shutdown            bool
 }
 
-func newClient(address, securitySalt, key string, onRpcMessage rpc.OnMessage) *joinClient {
+func newClient(address, token, key string, onRpcMessage rpc.OnMessage) *joinClient {
 	joinClient := &joinClient{
-		address:      address,
-		securitySalt: securitySalt,
-		key:          key,
+		address: address, token: token, key: key,
 	}
 	joinClient.client = rpc.NewClient(address, onRpcMessage, joinClient.reconnect)
 	return joinClient
@@ -66,7 +64,7 @@ func (self *joinClient) authRequest() *rpc.Request {
 	timestamp := time.Now().Format("20060102150405")
 	req.Header("timestamp", timestamp)
 	req.Header("key", self.key)
-	code := fmt.Sprintf("%x", md5.Sum([]byte(timestamp+self.securitySalt+self.key)))
+	code := fmt.Sprintf("%x", md5.Sum([]byte(timestamp+self.token+self.key)))
 	req.Body = []byte(code)
 	return req
 }

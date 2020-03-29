@@ -15,7 +15,9 @@ var joinCmd = &cobra.Command{
 		if viper.GetBool("must") {
 			request.Header("must", "true")
 		}
-
+		if token := viper.GetString("token"); token != "" {
+			request.Header("token", token)
+		}
 		sendRequest(cmd, request)
 		return nil
 	},
@@ -33,4 +35,8 @@ var leaveCmd = &cobra.Command{
 		sendRequest(cmd, request)
 		return nil
 	},
+}
+
+func init() {
+	joinCmd.PersistentFlags().StringP("token", "", "", "连接使用的token")
 }

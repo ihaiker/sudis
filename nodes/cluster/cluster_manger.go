@@ -1,6 +1,8 @@
 package cluster
 
 import (
+	"crypto/md5"
+	"fmt"
 	"github.com/ihaiker/gokit/errors"
 	"github.com/ihaiker/gokit/logs"
 	"github.com/ihaiker/sudis/daemon"
@@ -14,7 +16,7 @@ var logger = logs.GetLogger("cluster")
 
 type (
 	DaemonManager struct {
-		key            string
+		key, salt      string
 		domainManagers []*NamedDomainManager
 		tails          map[string]daemon.TailLogger
 		eventListener  daemon.FSMStatusListener
@@ -35,9 +37,10 @@ type (
 	}
 )
 
-func NewDaemonManger(key string, daemonManger daemon.Manager) *DaemonManager {
+func NewDaemonManger(key, salt string, daemonManger daemon.Manager) *DaemonManager {
 	return &DaemonManager{
-		key: key, tails: map[string]daemon.TailLogger{},
+		key: key, salt: salt,
+		tails: map[string]daemon.TailLogger{},
 		domainManagers: []*NamedDomainManager{
 			{
 				Name: key, Address: "127.0.0.1",
@@ -219,8 +222,15 @@ func (self *DaemonManager) QueryNode() []*dao.Node {
 	return nodes
 }
 
-func (self *DaemonManager) ModifyNodeTag(key string, tag string) {
-	errors.Assert(dao.NodeDao.ModifyTag(key, tag))
+func (self DaemonManager) ModifyNodeToken(key string, token string) error {
+	if key == self.key {
+		return nil
+	}
+	return dao.NodeDao.ModifyToken(key, token)
+}
+
+func (self *DaemonManager) ModifyNodeTag(key string, tag string) error {
+	return dao.NodeDao.ModifyTag(key, tag)
 }
 
 func (self *DaemonManager) GetProgram(node string, name string) (*daemon.Program, error) {
@@ -317,29 +327,30 @@ func (self *DaemonManager) OnStatusEvent(event daemon.FSMStatusEvent) {
 	}
 }
 
-func (self *DaemonManager) NodeJoin(dm *NamedDomainManager) error {
-	key := dm.Name
-
-	if d, err := self.Get(key); err == nil && d.Status == dao.NodeStatusOnline {
-		return ErrNodeKeyExists
+func (self *DaemonManager) NodeJoin(key, address, timestamp, code string, dm *NamedDomainManager) error {
+	token := self.salt
+	if node, has, err := dao.NodeDao.Get(key); err == nil && has {
+		token = node.Token
+	}
+	checkCode := fmt.Sprintf("%x", md5.Sum([]byte(timestamp+token+key)))
+	if code != checkCode {
+		return ErrToken
 	}
 
-	address := dm.Address
 	ip, _, _ := net.SplitHostPort(address)
-	if err := dao.NodeDao.Add(ip, key); err != nil {
+	if err := dao.NodeDao.Join(ip, key); err != nil {
 		logger.Warn("节点 %s,%s 加入异常：%s", key, address, err)
+		return ErrToken
 	}
-	self.domainManagers = append(self.domainManagers, dm)
 
+	self.domainManagers = append(self.domainManagers, dm)
 	dm.SetStatusListener(self.OnStatusEvent)
 
 	if self.nodeListener != nil {
 		self.nodeListener(NodeEvent{
-			Node:   dm.Name,
-			Status: dao.NodeStatusOnline,
+			Node: key, Status: dao.NodeStatusOnline,
 		})
 	}
-
 	return nil
 }
 

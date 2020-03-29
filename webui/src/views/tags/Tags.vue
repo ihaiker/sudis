@@ -1,12 +1,14 @@
 <template>
     <div>
-        <v-title title="标签管理" title-class="fa-tags">
-            <button @click="editTag={}" class="btn btn-xs btn-pinterest">
+        <v-title title="标签管理" title-class="fa-tags"/>
+
+        <div class="animated fadeIn p-2">
+            <button @click="editTag={}" class="btn btn-pinterest">
                 <i class="icon-plus"/> &nbsp;添加标签
             </button>
-        </v-title>
+        </div>
 
-        <div class="animated fadeIn p-3 pl-5 pr-5">
+        <div class="animated fadeIn p-1 pl-3 pr-3">
             <div class="row text-center">
                 <div v-for="(tag) in tags" class="col-1">
                     <div class="row mt-3 ml-1">

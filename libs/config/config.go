@@ -31,10 +31,11 @@ type (
 		//管理节点的绑定地址
 		Manager string `mapstructure:"manager"`
 
+		//节点盐值，如果设置了此值，所有节点的将统一使用此值，如果没有设置，所有节点的盐值都是单独的。
+		Salt string `mapstructure:"salt"`
+
 		//连接主节点
 		Join []string `mapstructure:"join"`
-
-		Salt string `mapstructure:"salt"`
 
 		//管理程序关闭最大等待时间，防止有些程序不能很快停止而导致的直接kill
 		MaxWaitTimeout time.Duration `mapstructure:"maxwait"`
@@ -63,7 +64,6 @@ func defaultConfig() *sudisConfig {
 			Type: "sqlite3", Url: "sudis.db",
 		},
 		Join:           []string{},
-		Salt:           "whosyourdaddy", //你懂得？调皮一下，多少人的记忆啊
 		MaxWaitTimeout: time.Second * 15,
 		StartTime:      time.Now(),
 	}

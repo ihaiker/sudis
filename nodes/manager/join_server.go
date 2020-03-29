@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"crypto/md5"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,15 +34,14 @@ func (self *joinServer) checkClientAuth(channel remoting.Channel, request *rpc.R
 		key, has := request.GetHeader("key")
 		if exits && has {
 			code := string(request.Body)
-			checkCode := fmt.Sprintf("%x", md5.Sum([]byte(timestamp+self.salt+key)))
-			if code == checkCode {
-				if err := self.dm.NodeJoin(NewManager(key, address, self)); err != nil {
-					logger.Warnf("node join key: %s, error: %s", key, err)
-					return rpc.NewErrorResponse(request.ID(), err)
-				}
+			daemonManger := NewManager(key, address, self)
+			if err := self.dm.NodeJoin(key, address, timestamp, code, daemonManger); err == nil {
 				channel.SetAttr("key", key)
 				logger.Infof("node join key: %s, address: %s", key, address)
 				return rpc.OK(channel, request)
+			} else {
+				logger.Warnf("node join key: %s, error: %s", key, err)
+				return rpc.NewErrorResponse(request.ID(), err)
 			}
 		}
 		return rpc.NewErrorResponse(request.ID(), errors.New("NoAuthHeader"))

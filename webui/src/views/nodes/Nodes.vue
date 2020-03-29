@@ -4,15 +4,26 @@
 
         <div class="animated fadeIn p-3">
 
-            <table class="table table-hover table-bordered table-fixed  table-striped table-condensed">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">节点名称</span>
+                    </div>
+                    <input class="form-control" type="text" name="program" placeholder="节点名称"/>
+                    <div class="input-group-prepend">
+                        <button class="btn btn-danger" @click="editNodToken={}">
+                            <i class="fa fa-plus"/> 添加Token
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-hover table-bordered table-fixed  table-striped table-condensed mt-2">
                 <thead>
                 <tr>
-                    <th>节点标识</th>
-                    <th>节点IP</th>
-                    <th>备注</th>
-                    <th>地理位置</th>
-                    <th style="width: 120px;">管理进程数</th>
-                    <th style="width: 100px;">运行状态</th>
+                    <th>节点标识(节点IP)</th><th>Token</th><th>备注</th><th>地理位置</th>
+                    <th style="width: 70px;">进程数</th>
+                    <th style="width: 90px;">运行状态</th>
                     <th style="width: 180px;">
                         <center>加入日期</center>
                     </th>
@@ -20,8 +31,13 @@
                 </thead>
                 <tbody>
                 <tr v-for="(node) in nodes">
-                    <td>{{node.key}}</td>
-                    <td>{{node.ip}}</td>
+                    <td>{{node.key}} ({{node.ip}})</td>
+                    <td>
+                        {{node.token}}
+                        <button @click="editNodToken=node" class="btn btn-xs btn-ghost-danger pull-right" >
+                            <i class="icon-note"/>
+                        </button>
+                    </td>
                     <td>{{node.tag}}
                         <ModifyTag :node="node" @change="queryNode"/>
                     </td>
@@ -39,6 +55,8 @@
                 </tr>
                 </tbody>
             </table>
+
+            <TokenForm :node="editNodToken" @change="queryNode"/>
         </div>
     </div>
 </template>
@@ -47,18 +65,21 @@
 
     import ModifyTag from "./ModifyTag";
     import vTitle from "../../plugins/vTitle";
+    import TokenForm from "./TokenForm";
 
     export default {
         name: "Nodes",
-        components: {vTitle, ModifyTag},
+        components: {TokenForm, vTitle, ModifyTag},
         data: () => ({
             nodes: [],
+            editNodToken: null,
         }),
         mounted() {
             this.queryNode();
         },
         methods: {
             queryNode() {
+                this.editNodToken = null;
                 this.$axios.get("/admin/node/list", {})
                     .then(res => this.nodes = res)
                     .catch(e => this.$toast.error(e.message))

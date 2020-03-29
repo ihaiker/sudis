@@ -26,7 +26,7 @@ func init() {
 	NodeCommand.PersistentFlags().StringP("database.type", "", config.Config.Database.Type, "数据存储方式")
 	NodeCommand.PersistentFlags().StringP("database.url", "", config.Config.Database.Url, "数据存储地址")
 
-	NodeCommand.PersistentFlags().StringP("salt", "", config.Config.Salt, "安全加密盐值")
+	NodeCommand.PersistentFlags().StringP("salt", "", config.Config.Salt, "安全加密盐值，如果设置了此值，所有节点加入管理默认将使用此值，若未设置节点将使用单独的设置")
 	NodeCommand.PersistentFlags().String("manager", config.Config.Manager, "管理托管绑定地址")
 	NodeCommand.PersistentFlags().StringSliceP("join", "", config.Config.Join, "托管连接地址")
 	NodeCommand.PersistentFlags().DurationP("maxwait", "", config.Config.MaxWaitTimeout, "程序关闭最大等待时间")

@@ -6,7 +6,9 @@ import (
 	"github.com/ihaiker/gokit/errors"
 	"github.com/ihaiker/gokit/remoting/rpc"
 	"github.com/ihaiker/sudis/daemon"
+	sudisError "github.com/ihaiker/sudis/libs/errors"
 	"math"
+	"strings"
 	"time"
 )
 
@@ -24,11 +26,14 @@ func New(key, salt string) *ToJoinManager {
 	}
 }
 
-func (self *ToJoinManager) MustJoinIt(address string) {
+func (self *ToJoinManager) MustJoinIt(address, token string) {
 	maxWaitSeconds := 5 * 60
 	go func() {
 		for i := 0; !self.shutdown; i++ {
-			if err := self.Join(address); err == nil {
+			if err := self.Join(address, token); err == nil {
+				return
+			} else if strings.Contains(err.Error(), sudisError.ErrToken.Code) {
+				logger.Warn("Token错误，忽略加入 ", address)
 				return
 			}
 			seconds := int(math.Pow(2, float64(i)))
@@ -42,14 +47,14 @@ func (self *ToJoinManager) MustJoinIt(address string) {
 	}()
 }
 
-func (self *ToJoinManager) Join(address string) (err error) {
+func (self *ToJoinManager) Join(address, token string) (err error) {
 	//已经连接成功了，这里的操作是为了客户端连接主控节点异常后，
 	//使用命令主动再次连接的判断，因为客户端使用了指数递增方式等待，所以后面的等待是时间将会很长
 	if _, has := self.joined[address]; has {
 		return
 	}
 	logger.Infof("连接主控节点：%s", address)
-	client := newClient(address, self.salt, self.key, self.OnRpcMessage)
+	client := newClient(address, token, self.key, self.OnRpcMessage)
 	err = client.Start()
 	if err != nil {
 		logger.Warn("连接主控异常：", err)

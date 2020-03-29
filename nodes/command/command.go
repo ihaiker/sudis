@@ -192,15 +192,24 @@ func MakeCommand(dm *cluster.DaemonManager, joinManager *join.ToJoinManager) rpc
 			{
 				addresses, _ := getArgs(request)
 				must, has := request.GetHeader("must")
+				token, exists := request.GetHeader("token")
+				if token == "" || !exists {
+					token = config.Config.Salt
+				}
+
+				if token == "" {
+					response.Error = ErrToken
+					return
+				}
 
 				out := bytes.NewBufferString("")
 				var err error
 				for _, address := range addresses {
 					if has && must == "true" {
-						joinManager.MustJoinIt(address)
+						joinManager.MustJoinIt(address, token)
 						err = nil
 					} else {
-						err = joinManager.Join(address)
+						err = joinManager.Join(address, token)
 					}
 					if err != nil {
 						out.WriteString(fmt.Sprintf("join %s %s", address, err.Error()))

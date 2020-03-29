@@ -12,7 +12,7 @@ type Error struct {
 }
 
 func (err *Error) Error() string {
-	return err.Message
+	return err.Code + ":" + err.Message
 }
 
 func New(format string, args ...interface{}) error {
@@ -42,4 +42,8 @@ var (
 	ErrNodeKeyExists = NewError(iris.StatusNotFound, "ErrNodeKeyExists", "节点主键已经存在，不可用！")
 
 	ErrTimeout = NewError(iris.StatusInternalServerError, "ErrTimeout", "运行超时")
+
+	ErrClientToken = NewError(iris.StatusUnauthorized, "ErrClientToken", "客户端Token错误")
+
+	ErrToken = NewError(iris.StatusForbidden, "ErrToken", "错误的TOKEN")
 )
