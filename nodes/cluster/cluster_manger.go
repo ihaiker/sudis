@@ -157,7 +157,7 @@ func (self *DaemonManager) ListPrograms(name string, node string, tag string, st
 	end := min(start+limit, len(data))
 
 	return &dao.Page{
-		Total: 0, Data: data[start:end],
+		Total: int64(len(data)), Data: data[start:end],
 		Page: page, Limit: limit,
 	}
 }

@@ -19,7 +19,7 @@ func GetProcessInfo(pid int32) (cupPercent float64, useMem uint64, err error) {
 	if err != nil {
 		return
 	}
-	useMem = uint64(maths.Divide64(float64(memInfo.VMS+memInfo.RSS), 1024.0*1024.0))
+	useMem = uint64(maths.Divide64(maths.Add64(float64(memInfo.VMS), float64(memInfo.RSS)), 1024.0*1024.0))
 
 	cupPercent, err = p.CPUPercent()
 	if err != nil {

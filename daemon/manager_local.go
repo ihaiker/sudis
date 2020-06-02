@@ -205,7 +205,7 @@ func (self *local) ModifyTag(name string, add bool, tag string) error {
 			process.Tags.Remove(tag)
 		}
 	}
-	return err
+	return self.WriteConfig(name)
 }
 
 func (self *local) ListProgramNames() ([]string, error) {
