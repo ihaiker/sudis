@@ -8,8 +8,8 @@ import (
 	"github.com/ihaiker/sudis/nodes/dao"
 	"github.com/ihaiker/sudis/nodes/http/auth"
 	"github.com/ihaiker/sudis/nodes/join"
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/hero"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/hero"
 	"net"
 )
 

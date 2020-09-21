@@ -11,8 +11,8 @@ import (
 	"github.com/ihaiker/sudis/nodes/dao"
 	"github.com/ihaiker/sudis/nodes/join"
 	"github.com/iris-contrib/middleware/cors"
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +29,7 @@ func getRequestLogs(ctx context.Context) string {
 	return fmt.Sprintf("%v %s %s %s", status, path, method, ip)
 }
 
-func recoverFn(ctx context.Context) {
+func recoverFn(ctx *context.Context) {
 	defer func() {
 		if rev := recover(); rev != nil {
 			if ctx.IsStopped() {

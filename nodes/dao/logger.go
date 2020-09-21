@@ -2,15 +2,27 @@ package dao
 
 import (
 	"github.com/ihaiker/gokit/logs"
-	"xorm.io/core"
+	"xorm.io/xorm/log"
 )
 
 var logger = logs.GetLogger("dao")
 
-var coreLogger = new(XormLogger)
+var coreLogger *XormLogger
+
+func init() {
+	coreLogger = new(XormLogger)
+}
 
 type XormLogger struct {
 	showsql bool
+}
+
+func (self *XormLogger) Level() log.LogLevel {
+	return log.LogLevel(int(logger.Level()))
+}
+
+func (self *XormLogger) SetLevel(l log.LogLevel) {
+	logger.SetLevel(logs.Level(int(l)))
 }
 
 func (self *XormLogger) Debug(v ...interface{}) {
@@ -43,14 +55,6 @@ func (self *XormLogger) Warn(v ...interface{}) {
 
 func (self *XormLogger) Warnf(format string, v ...interface{}) {
 	logger.Warnf(format, v...)
-}
-
-func (self *XormLogger) Level() core.LogLevel {
-	return core.LogLevel(int(logger.Level()))
-}
-
-func (self *XormLogger) SetLevel(l core.LogLevel) {
-	logger.SetLevel(logs.Level(int(l)))
 }
 
 func (self *XormLogger) ShowSQL(show ...bool) {

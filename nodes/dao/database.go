@@ -31,7 +31,6 @@ func CreateEngine(path string, config *config.Database) (err error) {
 	engine.SetLogger(coreLogger)
 	if logs.IsDebugMode() {
 		engine.ShowSQL(true)
-		engine.ShowExecTime(true)
 	}
 	if notExists {
 		err = createTables()

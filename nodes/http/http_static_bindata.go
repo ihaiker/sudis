@@ -4,7 +4,7 @@ package http
 
 import (
 	"github.com/ihaiker/gokit/logs"
-	"github.com/kataras/iris"
+	"github.com/kataras/iris/v12"
 )
 
 func httpStatic(app *iris.Application) {

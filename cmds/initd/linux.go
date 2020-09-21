@@ -20,7 +20,8 @@ Description=The sudis endpoint.
 After=network.target remote-fs.target nss-lookup.target
 
 [Service]
-ExecStart=/usr/local/bin/sudis
+WorkingDirectory=/opt/sudis
+ExecStart=/opt/sudis/sudis
 ExecStop=/bin/kill -2 $MAINPID
 KillSignal=SIGQUIT
 TimeoutStopSec=15
@@ -101,7 +102,7 @@ func linuxGt26() (err error) {
 	errors.Assert(err)
 
 	from, _ := filepath.Abs(os.Args[0])
-	to := "/usr/local/bin/sudis"
+	to := "/opt/sudis/sudis"
 	if from != to {
 		_, _ = runs("rm", "-f", to)
 		err, _ = runs("cp", "-r", from, to)

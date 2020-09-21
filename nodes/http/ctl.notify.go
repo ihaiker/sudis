@@ -7,7 +7,7 @@ import (
 	"github.com/ihaiker/sudis/nodes/dao"
 	"github.com/ihaiker/sudis/nodes/notify/mail"
 	"github.com/ihaiker/sudis/nodes/notify/webhook"
-	"github.com/kataras/iris"
+	"github.com/kataras/iris/v12"
 	"time"
 )
 

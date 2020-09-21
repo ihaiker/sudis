@@ -18,7 +18,7 @@ func isAdminUser() error {
 }
 
 var Cmd = &cobra.Command{
-	Use: "initd", Short: "添加开启启动项", Example: "sudis initd",
+	Use: "initd", Short: "添加开机启动项", Example: "sudis initd",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if err := isAdminUser(); err != nil {
 			return err

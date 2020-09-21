@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/ihaiker/gokit/errors"
 	"github.com/ihaiker/sudis/nodes/dao"
-	"github.com/kataras/iris"
+	"github.com/kataras/iris/v12"
 	"time"
 )
 

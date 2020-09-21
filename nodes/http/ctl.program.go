@@ -6,7 +6,7 @@ import (
 	. "github.com/ihaiker/sudis/libs/errors"
 	"github.com/ihaiker/sudis/nodes/cluster"
 	"github.com/ihaiker/sudis/nodes/dao"
-	"github.com/kataras/iris"
+	"github.com/kataras/iris/v12"
 )
 
 type ProgramController struct {
