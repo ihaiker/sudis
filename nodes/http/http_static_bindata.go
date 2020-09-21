@@ -9,14 +9,13 @@ import (
 
 func httpStatic(app *iris.Application) {
 	logs.Info("使用bindata")
-
 	app.Get("/favicon.ico", func(ctx iris.Context) {
-		bs, _ := Asset("webui/dist/favicon.ico")
-		_, _ = ctx.Write(bs)
+		_, _ = ctx.Write([]byte(_faviconIco))
 	})
-	app.RegisterView(iris.HTML("webui/dist", ".html").Binary(Asset, AssetNames))
-	app.StaticEmbedded("/static", "webui/dist/static", Asset, AssetNames)
+	app.HandleDir("/", AssetFile())
 	app.Get("/", func(ctx iris.Context) {
-		ctx.View("index.html")
+		//ctx.View("index.html")
+		bs, _ := indexHtmlBytes()
+		ctx.Write(bs)
 	})
 }
