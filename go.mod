@@ -18,7 +18,7 @@ require (
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/nats-io/nats-server/v2 v2.1.8 // indirect
+	github.com/nats-io/nats-server/v2 v2.7.4 // indirect
 	github.com/shirou/gopsutil v2.20.8+incompatible
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
